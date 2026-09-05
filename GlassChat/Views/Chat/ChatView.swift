@@ -111,9 +111,9 @@ struct ChatView: View {
             && message.role == .assistant && message.status == .finished
         return MessageView(
             message: message,
-            tokenSummary: tokenSummary(for: message),
             onRetry: message.status == .failed ? { retryFailed(message) } : nil,
-            onRegenerate: isLastAssistant && !viewModel.isGenerating ? { regenerateLast() } : nil
+            onRegenerate: isLastAssistant && !viewModel.isGenerating ? { regenerateLast() } : nil,
+            tokenSummary: tokenSummary(for: message)
         )
     }
 
