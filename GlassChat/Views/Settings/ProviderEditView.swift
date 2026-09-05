@@ -185,9 +185,7 @@ struct ProviderEditView: View {
         }
         .onChange(of: focusedField) { oldField, newField in
             if oldField == .baseURL && newField != .baseURL {
-                if let current = provider.baseURL {
-                    store.updateBaseURL(id: providerID, baseURL: current)
-                }
+                store.updateBaseURL(id: providerID, baseURL: provider.baseURL)
             }
         }
     }
