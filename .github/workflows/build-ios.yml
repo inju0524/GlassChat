@@ -27,20 +27,35 @@ jobs:
 
       - name: Build archive (unsigned)
         run: |
+          set -o pipefail
           xcodebuild -project GlassChat.xcodeproj \
             -scheme GlassChat \
             -configuration Release \
             -destination "generic/platform=iOS" \
             -archivePath build/GlassChat.xcarchive \
-            archive CODE_SIGNING_ALLOWED=NO
+            archive CODE_SIGNING_ALLOWED=NO 2>&1 | tee build.log
+
+      - name: Surface compile errors to summary
+        if: failure()
+        run: |
+          grep -E "error:" build.log | sort -u | head -30 | tee errors.txt || true
+          {
+            echo "### 编译错误（去重后前 30 条）"
+            echo '```'
+            cat errors.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          while IFS= read -r line; do echo "::error::$line"; done < errors.txt
 
       - name: Package ipa
+        if: success()
         run: |
           mkdir Payload
           cp -r build/GlassChat.xcarchive/Products/Applications/GlassChat.app Payload/
           zip -rq GlassChat.ipa Payload
 
       - uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: GlassChat-ipa
           path: GlassChat.ipa
