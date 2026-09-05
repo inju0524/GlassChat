@@ -10,6 +10,8 @@ struct ChatView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(SettingsStore.self) private var settings
+    @Environment(ProviderStore.self) private var providerStore
+    @Environment(NetworkMonitor.self) private var network
 
     @State private var viewModel = ChatViewModel()
     @State private var appliedInitialInput = false
@@ -34,6 +36,23 @@ struct ChatView: View {
                 messageList
             }
         }
+        .overlay(alignment: .top) {
+            if !network.isOnline {
+                HStack(spacing: 8) {
+                    Image(systemName: "wifi.exclamationmark")
+                    Text("无网络连接")
+                }
+                .font(.themeCaption())
+                .foregroundStyle(AppTheme.dangerText)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(.red.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
+                .overlay(RoundedRectangle(cornerRadius: 14).stroke(.red.opacity(0.3)))
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .padding(.top, 4)
+            }
+        }
+        .animation(.snappy, value: network.isOnline)
         .navigationTitle(conversation.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -72,6 +91,7 @@ struct ChatView: View {
                             && message.role == .assistant && message.status == .finished
                         MessageView(
                             message: message,
+                            tokenSummary: tokenSummary(for: message),
                             onRetry: message.status == .failed ? { retryFailed(message) } : nil,
                             onRegenerate: isLastAssistant && !viewModel.isGenerating
                                 ? { regenerateLast() } : nil
@@ -124,13 +144,7 @@ struct ChatView: View {
                     set: { viewModel.setInput($0) }
                 ),
                 isGenerating: viewModel.isGenerating,
-                onSend: {
-                    viewModel.send(
-                        context: modelContext,
-                        conversation: conversation,
-                        provider: makeProvider()
-                    )
-                },
+                onSend: { startSend() },
                 onStop: { viewModel.stop() }
             )
         }
@@ -139,20 +153,30 @@ struct ChatView: View {
         .padding(.bottom, 10)
     }
 
-    /// 有真实配置时按预设走兼容协议或 Responses API；未配置则回退 Echo 演示。
-    private func makeProvider() -> AIProvider {
-        if let config = settings.makeProviderConfig() {
-            return AIProviderFactory.make(config: config)
-        }
-        return EchoProvider()
+    /// 无有效配置时插入失败提示；有配置则按协议工厂构造真实 Provider
+    private func startSend() {
+        guard let provider = activeProviderOrNotify() else { return }
+        viewModel.send(context: modelContext, conversation: conversation, provider: provider)
     }
 
     private func regenerateLast() {
-        viewModel.regenerate(
-            context: modelContext,
-            conversation: conversation,
-            provider: makeProvider()
-        )
+        guard let provider = activeProviderOrNotify() else { return }
+        viewModel.regenerate(context: modelContext, conversation: conversation, provider: provider)
+    }
+
+    private func activeProviderOrNotify() -> AIProvider? {
+        guard let provider = providerStore.activeProvider,
+              let key = providerStore.activeAPIKey, !key.isEmpty else {
+            viewModel.insertNotConfiguredNotice(context: modelContext, conversation: conversation)
+            return nil
+        }
+        return AIProviderFactory.make(provider: provider, apiKey: key)
+    }
+
+    private func tokenSummary(for message: Message) -> String? {
+        guard message.role == .assistant, message.status == .finished else { return nil }
+        guard message.promptTokens > 0 || message.completionTokens > 0 else { return nil }
+        return "\(message.promptTokens) + \(message.completionTokens) tokens"
     }
 
     private func retryFailed(_ failed: Message) {

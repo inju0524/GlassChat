@@ -1,52 +1,45 @@
 import Foundation
 
-/// OpenAI 兼容协议实现（DeepSeek / Kimi / 智谱 / OpenRouter / Ollama 通吃）。
-/// POST {endpoint}/chat/completions   body: { model, messages, stream: true }
-/// SSE 事件：data: {"choices":[{"delta":{"content":"..."}}]}，data: [DONE] 结束。
+/// OpenAI 兼容协议的通用流式实现（适配器由 APIProtocolKind 提供）。
+/// URL = Base URL（已规范化）+ apiPath；非 2xx 时解析响应体中的错误信息。
 struct OpenAIChatProvider: AIProvider {
     let config: ProviderConfig
-    var id: String { config.presetID }
+    let kind: APIProtocolKind
+
+    init(config: ProviderConfig, kind: APIProtocolKind = .openAICompatible) {
+        self.config = config
+        self.kind = kind
+    }
+
+    var id: String { config.providerID }
 
     func stream(_ request: ChatRequest) -> AsyncThrowingStream<ChatEvent, Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 do {
-                    var urlRequest = URLRequest(url: config.endpoint.appending(path: "chat/completions"))
+                    var urlRequest = URLRequest(url: config.endpoint.appending(path: kind.apiPath))
                     urlRequest.httpMethod = "POST"
-                    urlRequest.setValue("Bearer \(config.apiKey)", forHTTPHeaderField: "Authorization")
-                    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
                     urlRequest.timeoutInterval = 120
-                    let body: [String: Any] = [
-                        "model": request.model,
-                        "stream": true,
-                        "messages": request.messages.map { ["role": $0.role.rawValue, "content": $0.content] }
-                    ]
-                    urlRequest.httpBody = try JSONSerialization.data(withJSONObject: body)
+                    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                    kind.authorize(&urlRequest, apiKey: config.apiKey)
+                    urlRequest.httpBody = try kind.makeBody(
+                        model: config.model,
+                        messages: request.messages,
+                        stream: true
+                    )
 
                     let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
                     guard let http = response as? HTTPURLResponse else { throw ChatError.decoding }
-                    guard (200..<300).contains(http.statusCode) else { throw ChatErrorMapper.from(status: http.statusCode) }
+                    guard (200..<300).contains(http.statusCode) else {
+                        throw Self.error(from: bytes, status: http.statusCode)
+                    }
 
                     var decoder = SSEDecoder()
                     for try await line in bytes.lines {
                         if Task.isCancelled { break }
                         for payload in decoder.feed(line + "\n") {
-                            guard let data = payload.data(using: .utf8),
-                                  let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { continue }
-                            if let err = obj["error"] as? [String: Any] {
-                                throw ChatError.api((err["message"] as? String) ?? "API 返回错误")
-                            }
-                            if let choices = obj["choices"] as? [[String: Any]],
-                               let delta = choices.first?["delta"] as? [String: Any],
-                               let content = delta["content"] as? String, !content.isEmpty {
-                                continuation.yield(.delta(content))
-                            }
-                            if let usage = obj["usage"] as? [String: Any] {
-                                let prompt = usage["prompt_tokens"] as? Int ?? 0
-                                let completion = usage["completion_tokens"] as? Int ?? 0
-                                if prompt > 0 || completion > 0 {
-                                    continuation.yield(.usage(TokenUsage(prompt: prompt, completion: completion)))
-                                }
+                            for event in try kind.parse(payload: payload) {
+                                continuation.yield(event)
                             }
                         }
                     }
@@ -59,5 +52,25 @@ struct OpenAIChatProvider: AIProvider {
             }
             continuation.onTermination = { _ in task.cancel() }
         }
+    }
+
+    /// 非 2xx：优先解析响应体中服务商给出的可读错误（如 "Model ... does not exist"）
+    private static func error(from bytes: URLSession.AsyncBytes, status: Int) -> Error {
+        var body = ""
+        var iterator = bytes.lines.makeAsyncIterator()
+        while case let line? = await iterator.next() {
+            body += line
+            if body.count > 8_000 { break }
+        }
+        if let data = body.data(using: .utf8),
+           let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            if let err = obj["error"] as? [String: Any], let message = err["message"] as? String {
+                return ChatError.api("\(message)（HTTP \(status)）")
+            }
+            if let message = obj["message"] as? String {
+                return ChatError.api("\(message)（HTTP \(status)）")
+            }
+        }
+        return ChatErrorMapper.from(status: status)
     }
 }

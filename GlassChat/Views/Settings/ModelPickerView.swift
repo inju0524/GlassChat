@@ -1,53 +1,79 @@
 import SwiftUI
 
-/// 模型选择：按所选服务商列出推荐模型 + 自定义输入。
+/// 当前启用 Provider 的默认模型选择：列表点选 + 手动添加（即添加即设为默认）。
 struct ModelPickerView: View {
-    @Environment(SettingsStore.self) private var store
+    @Environment(ProviderStore.self) private var store
 
-    @State private var customModel = ""
+    @State private var modelInput = ""
+
+    private var active: APIProvider? { store.activeProvider }
 
     var body: some View {
-        @Bindable var store = store
+        Group {
+            if let provider = active {
+                modelList(provider)
+            } else {
+                ContentUnavailableView(
+                    "未配置 Provider",
+                    systemImage: "square.stack.3d.up.slash",
+                    description: Text("请先在「API Provider」中添加并启用一个服务商")
+                )
+            }
+        }
+        .background(AppTheme.bg.ignoresSafeArea())
+        .navigationTitle("默认模型")
+        .navigationBarTitleDisplayMode(.inline)
+        .scrollDismissesKeyboard(.interactively)
+        .simultaneousGesture(TapGesture().onEnded { _ in modelInput = "" })
+    }
+
+    @ViewBuilder
+    private func modelList(_ provider: APIProvider) -> some View {
         List {
-            Section("推荐模型（\(ProviderPreset.find(store.providerID).displayName)）") {
-                ForEach(ProviderPreset.find(store.providerID).suggestedModels, id: \.self) { model in
+            Section {
+                if provider.models.isEmpty {
+                    Text("模型列表为空，请在 Provider 编辑页获取或添加模型")
+                        .font(.themeSecondary())
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+                ForEach(provider.models, id: \.self) { model in
                     Button {
-                        store.model = model
+                        store.setDefaultModel(id: provider.id, model: model)
                     } label: {
                         HStack {
-                            Text(model)
-                                .font(.themeBody())
-                                .foregroundStyle(AppTheme.textPrimary)
+                            Text(model).font(.themeBody()).foregroundStyle(AppTheme.textPrimary)
                             Spacer()
-                            if store.model == model {
-                                Image(systemName: "checkmark")
-                                    .font(.themeSecondary())
-                                    .foregroundStyle(AppTheme.accent)
+                            if model == provider.defaultModel {
+                                Image(systemName: "checkmark").font(.themeBody()).foregroundStyle(AppTheme.accent)
                             }
                         }
                     }
                 }
+            } header: {
+                Text(provider.name)
+            } footer: {
+                Text("点击模型设为默认。当前默认：\(provider.defaultModel.isEmpty ? "未设置" : provider.defaultModel)")
             }
 
-            Section("自定义") {
+            Section("手动添加") {
                 HStack {
-                    TextField("模型 ID", text: $customModel)
+                    TextField("模型 ID（如 openai/gpt-5.6-sol）", text: $modelInput)
+                        .font(.themeBody())
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                    Button("使用") {
-                        let model = customModel.trimmingCharacters(in: .whitespacesAndNewlines)
-                        guard !model.isEmpty else { return }
-                        store.model = model
-                    }
+                        .submitLabel(.done)
+                        .onSubmit { addModel(provider) }
+                    Button("添加并使用") { addModel(provider) }
+                        .disabled(modelInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
-
-            Section {
-                Text("当前模型：\(store.model)")
-                    .font(.themeSecondary())
-                    .foregroundStyle(AppTheme.textSecondary)
-            }
         }
-        .navigationTitle("默认模型")
+    }
+
+    private func addModel(_ provider: APIProvider) {
+        let model = modelInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !model.isEmpty else { return }
+        store.setDefaultModel(id: provider.id, model: model)
+        modelInput = ""
     }
 }

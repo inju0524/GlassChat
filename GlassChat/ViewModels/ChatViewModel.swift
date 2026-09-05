@@ -63,6 +63,15 @@ final class ChatViewModel {
         generationTask = streamTask(provider: provider, conversation: conversation, assistant: assistant)
     }
 
+    /// 无有效 Provider 配置时，插入一条失败占位消息引导用户去设置
+    func insertNotConfiguredNotice(context: ModelContext, conversation: Conversation) {
+        let message = Message(role: .assistant, content: "", status: .failed)
+        message.conversation = conversation
+        message.errorText = ChatError.notConfigured.errorDescription
+        context.insert(message)
+        try? context.save()
+    }
+
     func deleteFailed(_ message: Message, context: ModelContext) {
         guard message.status == .failed else { return }
         context.delete(message)

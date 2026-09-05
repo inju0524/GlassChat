@@ -1,12 +1,14 @@
 import SwiftUI
 
 /// 底部玻璃输入栏：胶囊容器 + 多行输入 + 发送键。
-/// 发送键在生成中切换为停止键（GlassEffectContainer + glassEffectID morph，Phase 7）。
+/// 发送↔停止使用 GlassEffectContainer 玻璃 morph 动效（iOS 26）。
 struct GlassInputBar: View {
     @Binding var text: String
     var isGenerating: Bool
     var onSend: () -> Void
     var onStop: () -> Void
+
+    @Namespace private var actionNamespace
 
     private var trimmed: String {
         text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -19,29 +21,41 @@ struct GlassInputBar: View {
                 .foregroundStyle(AppTheme.textPrimary)
                 .tint(AppTheme.accent)
                 .lineLimit(1...5)
-            if isGenerating {
-                Button(action: onStop) {
-                    Image(systemName: "stop.fill")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .frame(width: 36, height: 36)
-                        .background(Color(white: 0.2), in: Circle())
+            GlassEffectContainer(spacing: 20) {
+                if isGenerating {
+                    stopButton
+                } else {
+                    sendButton
                 }
-            } else {
-                Button(action: onSend) {
-                    Image(systemName: "arrow.up")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .frame(width: 36, height: 36)
-                        .background(AppTheme.sendGradient, in: Circle())
-                        .opacity(trimmed.isEmpty ? 0.4 : 1)
-                }
-                .disabled(trimmed.isEmpty)
             }
         }
         .padding(.leading, 18)
         .padding(.trailing, 8)
         .padding(.vertical, 8)
         .glassEffect()
+    }
+
+    private var stopButton: some View {
+        Button(action: onStop) {
+            Image(systemName: "stop.fill")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 36, height: 36)
+        }
+        .glassEffect(.regular.tint(.red.opacity(0.55)), in: Circle())
+        .glassEffectID("input-action", in: actionNamespace)
+    }
+
+    private var sendButton: some View {
+        Button(action: onSend) {
+            Image(systemName: "arrow.up")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 36, height: 36)
+        }
+        .glassEffect(.regular.tint(.blue.opacity(0.55)), in: Circle())
+        .glassEffectID("input-action", in: actionNamespace)
+        .disabled(trimmed.isEmpty)
+        .opacity(trimmed.isEmpty ? 0.4 : 1)
     }
 }

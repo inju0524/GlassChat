@@ -6,6 +6,7 @@ struct MessageView: View {
     let message: Message
     var onRetry: (() -> Void)? = nil
     var onRegenerate: (() -> Void)? = nil
+    var tokenSummary: String? = nil
 
     var body: some View {
         Group {
@@ -25,10 +26,17 @@ struct MessageView: View {
                     if message.status == .failed {
                         ErrorBanner(text: message.errorText ?? "生成失败", retryable: true, onRetry: onRetry)
                     } else {
-                        HStack(alignment: .top, spacing: 2) {
-                            MarkdownView(content: message.content)
-                            if message.status == .streaming {
-                                CaretView()
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(alignment: .top, spacing: 2) {
+                                MarkdownView(content: message.content)
+                                if message.status == .streaming {
+                                    CaretView()
+                                }
+                            }
+                            if let tokenSummary {
+                                Text(tokenSummary)
+                                    .font(.themeCaption())
+                                    .foregroundStyle(AppTheme.textTertiary)
                             }
                         }
                     }
