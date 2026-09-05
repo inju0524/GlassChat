@@ -1,0 +1,46 @@
+name: Build iOS (unsigned ipa)
+
+# 手动触发：仓库 → Actions → Build iOS (unsigned ipa) → Run workflow
+# 产物：GlassChat-ipa（下载后用 Sideloadly/AltStore 在 Windows 上签名安装到 iPhone）
+# 全程无需 Mac：Xcode 工程由 XcodeGen 在云端按 project.yml 自动生成。
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select latest Xcode
+        run: |
+          ls /Applications | grep -i xcode
+          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build archive (unsigned)
+        run: |
+          xcodebuild -project GlassChat.xcodeproj \
+            -scheme GlassChat \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath build/GlassChat.xcarchive \
+            archive CODE_SIGNING_ALLOWED=NO
+
+      - name: Package ipa
+        run: |
+          mkdir Payload
+          cp -r build/GlassChat.xcarchive/Products/Applications/GlassChat.app Payload/
+          zip -rq GlassChat.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GlassChat-ipa
+          path: GlassChat.ipa

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liquid Glass Chat App — 4 套 UI 方案总览与对比</title>
+<style>
+:root { --fg:#17171c; --muted:#6b6b76; --hair:rgba(20,20,40,.09); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background:
+    radial-gradient(1200px 500px at 15% -5%, rgba(120,130,190,.14), transparent 60%),
+    radial-gradient(1000px 460px at 90% 0%, rgba(150,120,190,.12), transparent 55%),
+    #e7e8ee;
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1560px; margin: 0 auto; padding: 48px 36px 80px; }
+.kicker { font-size: 12px; font-weight: 700; letter-spacing: 2.5px; color: var(--muted); text-transform: uppercase; }
+h1 { font-size: 36px; font-weight: 800; margin-top: 10px; }
+.lede { margin-top: 12px; font-size: 15.5px; color: #3c3c46; line-height: 1.8; max-width: 900px; }
+.howto { margin-top: 14px; font-size: 13.5px; color: var(--muted); line-height: 1.8; }
+.howto b { color: #2c2c34; }
+
+.grid { margin-top: 34px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.card {
+  background: rgba(255,255,255,.78);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 22px; padding: 20px 20px 16px;
+  box-shadow: 0 10px 30px rgba(20,25,60,.10);
+  display: flex; flex-direction: column; text-decoration: none; color: inherit;
+}
+.card:hover { transform: translateY(-3px); transition: .18s ease; }
+.swatch { height: 8px; border-radius: 99px; margin-bottom: 14px; }
+.card h2 { font-size: 19px; font-weight: 800; }
+.card .en { font-size: 11px; letter-spacing: 1.5px; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
+.card p { font-size: 13px; color: #4a4a55; line-height: 1.75; margin-top: 10px; flex: 1; }
+.thumbs { margin-top: 14px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.thumbs img { width: 100%; border-radius: 8px; border: 1px solid rgba(20,20,40,.10); display: block; }
+.open { margin-top: 12px; font-size: 13px; font-weight: 700; color: #0a6cff; }
+
+h3.sec { margin-top: 52px; font-size: 22px; font-weight: 800; }
+.tablewrap { margin-top: 18px; overflow-x: auto; background: rgba(255,255,255,.8); border: 1px solid var(--hair); border-radius: 18px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 860px; }
+th, td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--hair); }
+th { font-size: 12.5px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+tr:last-child td { border-bottom: none; }
+td:first-child { font-weight: 700; white-space: nowrap; }
+.stars { letter-spacing: 1px; }
+.rec {
+  margin-top: 22px; background: rgba(255,255,255,.8); border: 1px solid var(--hair);
+  border-radius: 18px; padding: 20px 24px; line-height: 1.9; font-size: 14.5px;
+}
+.rec b.tag { display: inline-block; background: #17171c; color: #fff; font-size: 12px; padding: 3px 10px; border-radius: 99px; margin-right: 8px; vertical-align: 2px; }
+.links { margin-top: 40px; display: flex; gap: 14px; flex-wrap: wrap; }
+.links a {
+  display: inline-block; padding: 12px 20px; border-radius: 14px; text-decoration: none;
+  background: #17171c; color: #fff; font-size: 14px; font-weight: 650;
+}
+.links a.ghost { background: rgba(255,255,255,.85); color: #17171c; border: 1px solid var(--hair); }
+.foot { margin-top: 26px; font-size: 12.5px; color: var(--muted); line-height: 1.8; }
+@media (max-width: 1200px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">GlassChat · iOS 26 Liquid Glass</div>
+  <h1>4 套 UI 方案，选一个方向</h1>
+  <p class="lede">每套方案包含完整的 4 个页面（对话列表 / AI 对话页 / 设置页 / 空状态），在布局结构、组件形态与玻璃使用密度上有真实差异——不是换肤。所有预览均为高保真方向稿，选定后我们再按该方向打磨细节并进入开发。</p>
+  <p class="howto">看法一：点击下方卡片打开<b>交互式网页预览</b>（可看设计理念/优缺点标注，推荐用 Chrome / Edge 全屏看）；看法二：直接看 <b>screenshots/</b> 里的 16 张 PNG 单屏大图。</p>
+
+  <div class="grid">
+    <a class="card" href="scheme-a-dark.html">
+      <div class="swatch" style="background:linear-gradient(90deg,#0a0b10,#2a3350,#6ea3ff)"></div>
+      <h2>方案 A · 曜黑 Glass</h2>
+      <div class="en">Dark Immersive</div>
+      <p>深色沉浸，一切悬浮物皆玻璃。夜间友好、科技感最强，玻璃层次感四种方案里最突出。适合夜间重度用户与极客审美。</p>
+      <div class="thumbs">
+        <img src="screenshots/scheme-a-01-conversations.png" alt="A 对话列表">
+        <img src="screenshots/scheme-a-02-chat.png" alt="A 对话页">
+        <img src="screenshots/scheme-a-03-settings.png" alt="A 设置页">
+        <img src="screenshots/scheme-a-04-empty.png" alt="A 空状态">
+      </div>
+      <span class="open">打开网页预览 →</span>
+    </a>
+
+    <a class="card" href="scheme-b-native.html">
+      <div class="swatch" style="background:linear-gradient(90deg,#f2f2f7,#c9d8f0,#0a84ff)"></div>
+      <h2>方案 B · 原生镜面</h2>
+      <div class="en">Native Light</div>
+      <p>"Apple 自己会怎么做"。完全系统范式：大标题列表、iMessage 气泡、分组设置。开发量最低、性能最稳、长期使用最舒适，辨识度相对弱。</p>
+      <div class="thumbs">
+        <img src="screenshots/scheme-b-01-conversations.png" alt="B 对话列表">
+        <img src="screenshots/scheme-b-02-chat.png" alt="B 对话页">
+        <img src="screenshots/scheme-b-03-settings.png" alt="B 设置页">
+        <img src="screenshots/scheme-b-04-empty.png" alt="B 空状态">
+      </div>
+      <span class="open">打开网页预览 →</span>
+    </a>
+
+    <a class="card" href="scheme-c-halo.html">
+      <div class="swatch" style="background:linear-gradient(90deg,#8ab4ff,#c79bff,#ffc4e1)"></div>
+      <h2>方案 C · 晨曦 Halo</h2>
+      <div class="en">Tinted Halo Glass</div>
+      <p>极光渐变背景 + 统一白玻璃 + 中央凸起 FAB。年轻、有记忆点，辨识度最高；需要接受更多视觉调校工作，光晕可整体关闭。</p>
+      <div class="thumbs">
+        <img src="screenshots/scheme-c-01-conversations.png" alt="C 对话列表">
+        <img src="screenshots/scheme-c-02-chat.png" alt="C 对话页">
+        <img src="screenshots/scheme-c-03-settings.png" alt="C 设置页">
+        <img src="screenshots/scheme-c-04-empty.png" alt="C 空状态">
+      </div>
+      <span class="open">打开网页预览 →</span>
+    </a>
+
+    <a class="card" href="scheme-d-minimal.html">
+      <div class="swatch" style="background:linear-gradient(90deg,#fbfbf9,#e8e6dd,#8b8b84)"></div>
+      <h2>方案 D · 素笺 Minimal</h2>
+      <div class="en">Minimal Content-First</div>
+      <p>无气泡、无 Tab Bar，AI 回复文档流直排，像阅读器。玻璃只留导航栏与输入栏。阅读体验最佳，气质克制，第一眼冲击力弱。</p>
+      <div class="thumbs">
+        <img src="screenshots/scheme-d-01-conversations.png" alt="D 对话列表">
+        <img src="screenshots/scheme-d-02-chat.png" alt="D 对话页">
+        <img src="screenshots/scheme-d-03-settings.png" alt="D 设置页">
+        <img src="screenshots/scheme-d-04-empty.png" alt="D 空状态">
+      </div>
+      <span class="open">打开网页预览 →</span>
+    </a>
+  </div>
+
+  <h3 class="sec">六维对比</h3>
+  <div class="tablewrap">
+    <table>
+      <tr><th>维度</th><th>A 曜黑 Glass</th><th>B 原生镜面</th><th>C 晨曦 Halo</th><th>D 素笺 Minimal</th></tr>
+      <tr><td>视觉效果</td><td class="stars">★★★★★ 惊艳沉浸</td><td class="stars">★★★★ 精致耐看</td><td class="stars">★★★★★ 有记忆点</td><td class="stars">★★★ 淡雅</td></tr>
+      <tr><td>原生 iOS 感</td><td class="stars">★★★☆</td><td class="stars">★★★★★</td><td class="stars">★★★☆</td><td class="stars">★★★★</td></tr>
+      <tr><td>开发难度（星少=易）</td><td>★★★ 自定义组件较多</td><td>★ 全系统组件</td><td>★★★★ 渐变+玻璃需调校</td><td>★★ 排版为主</td></tr>
+      <tr><td>性能风险</td><td>低-中（多层 blur）</td><td>最低</td><td>中（光晕需节制）</td><td>最低</td></tr>
+      <tr><td>长时间使用舒适度</td><td class="stars">★★★★ 夜间佳</td><td class="stars">★★★★★</td><td class="stars">★★★☆</td><td class="stars">★★★★★ 阅读最佳</td></tr>
+      <tr><td>产品辨识度</td><td class="stars">★★★★</td><td class="stars">★★</td><td class="stars">★★★★★</td><td class="stars">★★★</td></tr>
+    </table>
+  </div>
+
+  <div class="rec">
+    <p><b class="tag">我的推荐</b><b>首选 B（原生镜面）为基座，吸收 D 的一个特性</b>——设置里提供「气泡 / 直排」显示开关，AI 长回答用 D 式直排更易读。理由：初学者 + 受限开发环境下，B 全部用系统组件搭建，出错面最小、维护最省、最接近 Apple 原生气质。如果你更想要"第一眼惊艳"选 C，主要夜间使用选 A，重度阅读选 D。<b>最终由你决定。</b></p>
+  </div>
+
+  <div class="links">
+    <a href="../docs/PROJECT_PLAN.md">📄 查看完整项目计划（九部分）</a>
+    <a class="ghost" href="../docs/device-testing-guide.md">📱 Windows → iPhone 真机测试指引</a>
+  </div>
+  <p class="foot">预览为 HTML/CSS 高保真方向稿；实际 SwiftUI 的 Liquid Glass（glassEffect / GlassEffectContainer 实时折射与高光）效果会优于网页模拟。选定方案后进入 Phase 0：设计规范 + 项目骨架 + 云 Mac 构建清单。</p>
+</div>
+</body>
+</html>

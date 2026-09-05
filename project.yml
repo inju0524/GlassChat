@@ -1,0 +1,40 @@
+# XcodeGen 工程定义：CI 上执行 `xcodegen generate` 自动生成 GlassChat.xcodeproj。
+# 改工程结构只改这个文件；生成的 .xcodeproj 不入库（见 .gitignore）。
+name: GlassChat
+options:
+  bundleIdPrefix: com.glasschat
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    # Swift 5 语言模式（Xcode 26 工具链）：初学阶段避免被 Swift 6 严格并发报错淹没，
+    # 后续要切 6 只改这一行
+    SWIFT_VERSION: "5.0"
+
+targets:
+  GlassChat:
+    type: application
+    platform: iOS
+    sources:
+      - GlassChat
+    info:
+      path: GlassChat/Info.plist
+      properties:
+        CFBundleDisplayName: GlassChat
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        ITSAppUsesNonExemptEncryption: false
+
+schemes:
+  GlassChat:
+    build:
+      targets:
+        GlassChat: all
+    run:
+      config: Debug
+    archive:
+      config: Release

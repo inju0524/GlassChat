@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Xcode（工程由 project.yml 经 XcodeGen 自动生成，不入库）
+*.xcodeproj
+xcuserdata/
+DerivedData/
+build/
+
+# 产物
+*.ipa
+Payload/
+
+# 工具
+.zcode/

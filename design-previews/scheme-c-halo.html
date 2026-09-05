@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>方案 C · 晨曦 Halo — Liquid Glass Chat App UI 预览</title>
+<link rel="stylesheet" href="assets/preview.css">
+<style>
+/* ============ 方案 C：晨曦 Halo（彩色玻璃） ============ */
+.screen {
+  --fg: #23213a;
+  --sec: #6f6c8f;
+  --faint: #9b98b5;
+  --acc1: #5b7cfa;
+  --acc2: #9a5eea;
+  --acc: #5b6cf0;
+  color: var(--fg);
+  background: #f3f1fb;
+}
+.blob { position: absolute; border-radius: 50%; filter: blur(58px); pointer-events: none; }
+.b1 { width: 300px; height: 300px; left: -80px; top: -60px; background: rgba(138, 180, 255, 0.55); }
+.b2 { width: 260px; height: 260px; right: -70px; top: 40px; background: rgba(211, 165, 255, 0.45); }
+.b3 { width: 300px; height: 300px; left: -60px; bottom: 40px; background: rgba(255, 196, 225, 0.42); }
+.b4 { width: 260px; height: 260px; right: -60px; bottom: -40px; background: rgba(165, 232, 208, 0.42); }
+
+.glass {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.5));
+  backdrop-filter: blur(24px) saturate(1.7);
+  -webkit-backdrop-filter: blur(24px) saturate(1.7);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 12px 32px rgba(90, 80, 180, 0.13);
+}
+.glass-soft {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+.grad { background: linear-gradient(135deg, var(--acc1), var(--acc2)); }
+.grad-ring {
+  border: 1.6px solid transparent;
+  background: linear-gradient(#fff, #fff) padding-box, linear-gradient(135deg, var(--acc1), var(--acc2)) border-box;
+}
+.grad-text { background: linear-gradient(135deg, var(--acc1), var(--acc2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ic { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; display: block; }
+
+.content { position: absolute; inset: 0; overflow: hidden; padding: 0 16px; }
+
+/* ---------- ① 对话列表 ---------- */
+.head { position: absolute; top: 0; left: 0; right: 0; padding: 70px 20px 0; z-index: 400; }
+.head .row { display: flex; align-items: center; gap: 11px; }
+.avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #7aa5ff, #c79bff); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; font-weight: 700; box-shadow: 0 6px 16px rgba(110, 120, 250, 0.4); }
+.hello-t { font-size: 21px; font-weight: 800; }
+.hello-s { font-size: 12.5px; color: var(--sec); margin-top: 1px; }
+.search {
+  margin-top: 14px; height: 42px; border-radius: 999px;
+  display: flex; align-items: center; gap: 8px; padding: 0 15px;
+  color: var(--faint); font-size: 15px;
+}
+.search .ic { width: 16px; height: 16px; }
+
+.sec-label { margin: 18px 8px 8px; font-size: 12.5px; font-weight: 700; color: var(--faint); letter-spacing: 0.5px; }
+.conv-card { display: flex; align-items: center; gap: 12px; padding: 12px 13px; border-radius: 22px; margin-bottom: 9px; position: relative; overflow: hidden; }
+.conv-card::before { content: ""; position: absolute; left: 0; top: 14%; bottom: 14%; width: 3.5px; border-radius: 4px; background: var(--bar, var(--acc1)); opacity: .8; }
+.conv-card .tile { width: 40px; height: 40px; border-radius: 14px; flex: none; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.66); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 3px 10px rgba(100, 100, 190, 0.12); }
+.conv-card .tile .ic { width: 19px; height: 19px; }
+.g-blue { color: #5b7cfa; } .g-violet { color: #9a5eea; } .g-pink { color: #ec5fa4; } .g-green { color: #16a37a; } .g-orange { color: #ef8b37; }
+.conv-main { flex: 1; min-width: 0; }
+.conv-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.conv-title .ic { width: 13px; height: 13px; color: #9a8cc0; }
+.conv-sub { font-size: 12.8px; color: var(--sec); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.conv-time { font-size: 11.5px; color: var(--faint); }
+.udot { width: 8px; height: 8px; border-radius: 50%; background: linear-gradient(135deg, var(--acc1), var(--acc2)); margin: 6px 2px 0 auto; box-shadow: 0 0 8px rgba(122, 130, 250, 0.65); }
+
+.tabbar-halo {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  width: 296px; height: 62px; border-radius: 999px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 500; padding: 0 26px;
+}
+.tab-item { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 600; color: var(--faint); }
+.tab-item .ic { width: 21px; height: 21px; }
+.tab-item.on { color: var(--acc); }
+.fab {
+  position: absolute; left: 50%; top: -24px; transform: translateX(-50%);
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; z-index: 501;
+  background: linear-gradient(#fff, #fff) padding-box, linear-gradient(135deg, var(--acc1), var(--acc2)) border-box;
+  border: 1.6px solid transparent;
+  box-shadow: 0 14px 30px rgba(105, 100, 240, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.fab::before { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: linear-gradient(135deg, #6f8cff, #a86bf0); box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.45); }
+.fab .ic { position: relative; width: 22px; height: 22px; stroke-width: 2.1; color: #fff; }
+.list-pad { padding: 218px 16px 130px; }
+
+/* ---------- ② 对话页 ---------- */
+.chat-nav {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 500;
+  margin: 58px 12px 0; padding: 10px 10px 10px 8px;
+  border-radius: 26px;
+  display: flex; align-items: center; gap: 8px;
+}
+.chat-nav .nav-title { flex: 1; text-align: center; font-size: 16px; font-weight: 750; }
+.chat-nav .nav-title .st { display: block; font-size: 10.5px; color: var(--sec); font-weight: 550; margin-top: 1px; }
+.mini-btn { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #5f5c80; flex: none; }
+.mini-btn .ic { width: 16px; height: 16px; }
+.net-banner {
+  position: absolute; top: 168px; left: 24px; right: 24px; z-index: 500;
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+  padding: 9px 14px; border-radius: 16px;
+  background: rgba(255, 92, 112, 0.16);
+  border: 1px solid rgba(255, 92, 112, 0.30);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  font-size: 12.5px; font-weight: 600; color: #d5385a;
+}
+.net-banner .ic { width: 15px; height: 15px; }
+.chat-flow { padding: 214px 16px 156px; display: flex; flex-direction: column; gap: 10px; }
+.tstamp { text-align: center; font-size: 11.5px; color: var(--faint); margin: 2px 0 3px; }
+
+.msg-user { display: flex; flex-direction: column; align-items: flex-end; }
+.bubble-user {
+  max-width: 82%; padding: 11px 15px;
+  border-radius: 21px; border-bottom-right-radius: 7px;
+  font-size: 15px; line-height: 1.5; color: #232043;
+  background: linear-gradient(160deg, rgba(122, 140, 255, 0.26), rgba(165, 110, 245, 0.20));
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  border: 1px solid rgba(122, 140, 255, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 8px 22px rgba(110, 110, 240, 0.16);
+}
+.msg-meta { font-size: 10.5px; color: var(--faint); margin-top: 3px; }
+
+.msg-ai { display: flex; gap: 9px; max-width: 96%; }
+.ai-orb {
+  width: 28px; height: 28px; border-radius: 50%; flex: none; margin-top: 3px;
+  background: linear-gradient(135deg, #6f8cff, #a86bf0);
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  box-shadow: 0 5px 14px rgba(110, 110, 240, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.ai-orb .ic { width: 14px; height: 14px; }
+.ai-body { flex: 1; min-width: 0; }
+.ai-card {
+  border-radius: 20px; border-bottom-left-radius: 7px;
+  padding: 13px 15px; font-size: 14.4px; line-height: 1.7; color: #2b2947;
+}
+.ai-card p { margin: 0 0 7px; }
+.ai-card p:last-child { margin-bottom: 0; }
+.ai-card ul { margin: 0 0 7px; padding-left: 17px; }
+.ai-card li { margin: 2px 0; }
+.ai-card li::marker { color: var(--acc); }
+.ai-card b { font-weight: 700; }
+.ai-card code.inline { font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: 12.6px; background: rgba(105, 100, 240, 0.10); color: #4f46b8; padding: 1.5px 5px; border-radius: 5px; }
+.codeblock { margin: 3px 0 7px; border-radius: 13px; overflow: hidden; background: #232636; border: 1px solid rgba(255, 255, 255, 0.10); }
+.chead { display: flex; justify-content: space-between; align-items: center; padding: 6px 11px; font-size: 10.5px; color: #a3abc4; background: rgba(255, 255, 255, 0.05); }
+.chead .cp { display: flex; align-items: center; gap: 4px; color: #aebdf5; }
+.chead .cp .ic { width: 11px; height: 11px; }
+.codeblock pre { padding: 9px 13px; font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: 12.1px; line-height: 1.7; color: #e6e9f6; }
+.kw { color: #ff8fb8; } .ty { color: #8ccdff; } .fn { color: #6fdcc8; } .num { color: #ffc48a; }
+.usage-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin: 4px 0 0 37px; padding: 4.5px 11px; border-radius: 999px;
+  font-size: 10.5px; color: var(--faint);
+}
+.usage-chip .ic { width: 11px; height: 11px; }
+.caret { display: inline-block; width: 3px; height: 1em; background: linear-gradient(180deg, var(--acc1), var(--acc2)); margin-left: 2px; vertical-align: -0.12em; border-radius: 1px; animation: blink 1.05s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* 输入区 */
+.input-area { position: absolute; left: 0; right: 0; bottom: 0; z-index: 500; padding: 0 14px 44px; display: flex; flex-direction: column; gap: 10px; }
+.chip-row { display: flex; justify-content: space-between; align-items: center; padding: 0 4px; }
+.model-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 650; color: #4f4c74;
+  padding: 7.5px 14px; border-radius: 999px;
+}
+.model-chip .md { width: 8px; height: 8px; border-radius: 50%; background: linear-gradient(135deg, var(--acc1), var(--acc2)); }
+.model-chip .ic { width: 12px; height: 12px; opacity: .6; }
+.gen-chip { font-size: 11.5px; color: var(--faint); display: flex; align-items: center; gap: 6px; }
+.gen-chip .pulse { width: 7px; height: 7px; border-radius: 50%; background: linear-gradient(135deg, var(--acc1), var(--acc2)); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+.input-bar { height: 56px; border-radius: 999px; display: flex; align-items: center; gap: 10px; padding: 0 9px 0 18px; }
+.input-bar .ph { flex: 1; font-size: 15px; color: #a5a2c0; }
+.input-bar .ic { width: 20px; height: 20px; color: #8f8cb0; }
+.send-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  background: linear-gradient(135deg, #6f8cff, #a05ef0);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.45), 0 8px 20px rgba(110, 100, 240, 0.45);
+}
+.send-btn .ic { width: 19px; height: 19px; stroke-width: 2; }
+
+/* ---------- ③ 设置页 ---------- */
+.set-card { border-radius: 24px; margin-bottom: 11px; overflow: hidden; }
+.sec-h { padding: 9px 17px 2px; font-size: 12px; font-weight: 750; color: var(--faint); letter-spacing: .5px; }
+.set-row { display: flex; align-items: center; gap: 11px; padding: 9px 17px; position: relative; }
+.set-row + .set-row::before { content: ""; position: absolute; top: 0; left: 17px; right: 0; height: 1px; background: rgba(90, 85, 150, 0.10); }
+.set-row .lab { font-size: 14.8px; flex: 1; font-weight: 550; }
+.set-row .val { font-size: 14px; color: var(--sec); display: flex; align-items: center; gap: 5px; }
+.set-row .val .ic { width: 13px; height: 13px; opacity: .5; }
+.set-row .ok { color: #16a37a; display: flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 600; }
+.set-row .ok .ic { width: 13px; height: 13px; }
+.set-row.danger { color: #e0415e; }
+.toggle { width: 48px; height: 29px; border-radius: 999px; background: linear-gradient(135deg, #6f8cff, #a05ef0); position: relative; flex: none; box-shadow: inset 0 1px 3px rgba(40, 40, 120, 0.2); }
+.toggle::after { content: ""; position: absolute; top: 2px; right: 2px; width: 25px; height: 25px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(60, 60, 140, 0.3); }
+.seg { display: flex; background: rgba(120, 115, 190, 0.10); border-radius: 10px; padding: 2.5px; font-size: 12.5px; color: var(--sec); }
+.seg span { padding: 4.5px 10px; border-radius: 8px; }
+.seg .on { background: #fff; color: var(--acc); font-weight: 700; box-shadow: 0 2px 6px rgba(90, 85, 180, 0.18); }
+.set-pad { padding-top: 180px; padding-bottom: 118px; }
+
+/* ---------- ④ 空状态 ---------- */
+.hello2 { padding: 128px 22px 0; text-align: left; }
+.hello2 h2 { font-size: 31px; font-weight: 850; letter-spacing: .2px; }
+.hello2 .sub { margin-top: 7px; font-size: 15px; color: var(--sec); }
+.empty-hero { margin: 30px 4px 0; border-radius: 30px; padding: 28px 22px 24px; text-align: center; }
+.orb-big {
+  width: 72px; height: 72px; margin: 0 auto; border-radius: 50%;
+  background: linear-gradient(135deg, #6f8cff, #b06cf5);
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  box-shadow: 0 16px 36px rgba(110, 100, 240, 0.45), inset 0 2px 0 rgba(255, 255, 255, 0.5);
+  position: relative;
+}
+.orb-big::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 1.4px solid rgba(122, 130, 250, 0.30); }
+.orb-big .ic { width: 30px; height: 30px; }
+.empty-hero h3 { margin-top: 16px; font-size: 18px; font-weight: 800; }
+.empty-hero p { margin-top: 6px; font-size: 13px; color: var(--sec); line-height: 1.7; }
+.chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; justify-content: center; }
+.chip { font-size: 12.8px; font-weight: 600; color: #4b4880; padding: 9px 15px; border-radius: 999px; }
+</style>
+</head>
+<body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.4-4.4"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="5.5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18.5" cy="12" r="1.7"/></g></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M12 3v2.6M12 18.4V21M3 12h2.6M18.4 12H21M5.6 5.6l1.9 1.9M16.5 16.5l1.9 1.9M18.4 5.6l-1.9 1.9M7.5 16.5l-1.9 1.9"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.4c0 4.1-4 7.4-9 7.4-1 0-2-.13-2.9-.38L4.4 20l1.1-3.5C4 15.2 3 13.4 3 11.4 3 7.3 7 4 12 4s9 3.3 9 7.4Z"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H16"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M11 4l1.6 4.6L17 10.2l-4.4 1.6L11 16.4 9.4 11.8 5 10.2l4.4-1.6L11 4Z"/><path d="M18 14.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M9.5 14.5 4 20"/><path d="M14 3.5 20.5 10l-2.6.9-4.9 4.9.9 2.6-2.4 1-6-6 1-2.4 2.6.9 4.9-4.9L14 3.5Z"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4.5 2.8 19.5h18.4L12 4.5Z"/><path d="M12 10.2v4"/><circle cx="12" cy="16.6" r="0.55" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8.5-8.5M17 5l2.5 2.5M14 8l2.5 2.5"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v13c0 1.55 3.4 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-13M4.5 12c0 1.55 3.4 2.8 7.5 2.8s7.5-1.25 7.5-2.8"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11.2v4.8"/><circle cx="12" cy="8" r="0.55" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-paint" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-2 0-1.3-1-1.7-1-3 0-1 .8-2 2-2h2.5c2 0 3.5-1.4 3.5-3.5C21 6.5 17 3 12 3Z"/><circle cx="8" cy="9" r="0.6" fill="currentColor" stroke="none"/><circle cx="12" cy="7" r="0.6" fill="currentColor" stroke="none"/><circle cx="7" cy="13.5" r="0.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5.5A1.5 1.5 0 0 1 11.5 4h1A1.5 1.5 0 0 1 14 5.5V7M7 7l.8 12.1A2 2 0 0 0 9.8 21h4.4a2 2 0 0 0 2-1.9L17 7"/></symbol>
+  <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 15V4M8 7.5 12 3.5l4 4"/><path d="M5 13v5.5A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V13"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 13.6A8.2 8.2 0 0 1 10.4 4 8.2 8.2 0 1 0 20 13.6Z"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.3 4 5.1 4 8.5s-1.4 6.2-4 8.5c-2.6-2.3-4-5.1-4-8.5s1.4-6.2 4-8.5Z"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M5 19a8.5 8.5 0 1 1 14 0"/><path d="M12 14.5 15.5 9"/><circle cx="12" cy="15" r="1.2"/></symbol>
+  <symbol id="i-run" viewBox="0 0 24 24"><circle cx="15.5" cy="5" r="1.6"/><path d="M9 20l2.5-5L9 12l1.5-4.5L15 9l3 1M9 7.5 11 6l3 1.5"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9.5" y="4" width="5" height="10" rx="2.5"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v3"/></symbol>
+</svg>
+
+<nav class="scheme-nav">
+  <span class="brand">LG Chat · UI 预览</span>
+  <a href="index.html">总览对比</a>
+  <a href="scheme-a-dark.html"><span class="sw" style="background:#14161f"></span>方案 A · 曜黑 Glass</a>
+  <a href="scheme-b-native.html"><span class="sw" style="background:#f2f2f7"></span>方案 B · 原生镜面</a>
+  <a href="scheme-c-halo.html" class="current"><span class="sw" style="background:linear-gradient(135deg,#7aa5ff,#c79bff)"></span>方案 C · 晨曦 Halo</a>
+  <a href="scheme-d-minimal.html"><span class="sw" style="background:#fbfbf9"></span>方案 D · 素笺 Minimal</a>
+</nav>
+
+<header class="hero">
+  <div class="kicker-row"><span class="kicker">Scheme C · Tinted Halo Glass</span></div>
+  <h1>晨曦 Halo</h1>
+  <p class="tagline">Liquid Glass 与低饱和渐变的结合：极光色只存在于"背景层"，所有 UI 组件都是统一的白玻璃材质，彩色只出现在光晕、渐变描边与点缀色上。年轻、有产品记忆点，但始终不越过"廉价感"的边界。</p>
+  <div class="badges">
+    <span class="badge dark">彩色玻璃 + 柔和光晕</span>
+    <span class="badge">中央凸起新建按钮（morph 动画）</span>
+    <span class="badge">彩色 tinted 气泡</span>
+    <span class="badge">光晕可整体关闭</span>
+    <span class="badge">开发量：中等偏高</span>
+  </div>
+</header>
+
+<section class="panel">
+  <div class="cell"><h4>设计理念</h4><p>颜色被严格分层：背景是流动的极光（可关闭），控件是统一的白玻璃，品牌色只以"渐变描边、渐变按钮、tinted 气泡"三种形态出现。玻璃的折射感来自下方流动的色块——每滑动一点，玻璃里的颜色都在变化。</p></div>
+  <div class="cell good"><h4>优点</h4><ul><li>产品辨识度最高，年轻化气质</li><li>统一玻璃语言 + 受控的色彩层次</li><li>中央凸起 FAB 的 morph 动画最具观赏性</li></ul></div>
+  <div class="cell bad"><h4>缺点 / 注意点</h4><ul><li>需要精细调校，否则易显"花哨"</li><li>渐变背景有额外的渲染开销</li><li>彩色气泡的深浅色两套对比都要验证</li></ul></div>
+  <div class="cell"><h4>适合人群</h4><p>偏好年轻、个性化产品气质的用户；希望 App 有"记忆点"而非"系统味"的开发者；适合把 AI 对话当作生活方式产品的定位。</p></div>
+</section>
+
+<main class="stage">
+
+  <!-- ① 对话列表 -->
+  <div class="device-col">
+    <span class="screen-no">① 对话列表页</span>
+    <div class="phone">
+      <span class="side-btn btn-power"></span><span class="side-btn btn-vol-up"></span><span class="side-btn btn-vol-dn"></span><span class="side-btn btn-action"></span>
+      <div class="screen" data-status="dark">
+        <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+        <main class="content list-pad">
+          <div class="conv-card glass" style="--bar:#5b7cfa">
+            <span class="tile"><span class="ic g-blue" style="display:flex;"><svg class="ic"><use href="#i-doc"/></svg></span></span>
+            <div class="conv-main">
+              <div class="conv-title">周报助手 <svg class="ic"><use href="#i-pin"/></svg></div>
+              <div class="conv-sub">已生成本周工作摘要，共 3 条重点…</div>
+            </div>
+            <div class="conv-side"><div class="conv-time">周三</div></div>
+          </div>
+
+          <div class="sec-label">今天</div>
+          <div class="conv-card glass" style="--bar:#9a5eea">
+            <span class="tile"><span class="g-violet" style="display:flex;"><svg class="ic"><use href="#i-sparkle"/></svg></span></span>
+            <div class="conv-main">
+              <div class="conv-title">SwiftUI 动画答疑</div>
+              <div class="conv-sub">选择动画曲线的核心是节奏感…</div>
+            </div>
+            <div class="conv-side"><div class="conv-time">9:41</div><div class="udot"></div></div>
+          </div>
+          <div class="conv-card glass" style="--bar:#ef8b37">
+            <span class="tile"><span class="g-orange" style="display:flex;"><svg class="ic"><use href="#i-doc"/></svg></span></span>
+            <div class="conv-main">
+              <div class="conv-title">京都五日旅行计划</div>
+              <div class="conv-sub">第三天上午去伏见稻荷大社，下午…</div>
+            </div>
+            <div class="conv-side"><div class="conv-time">8:12</div></div>
+          </div>
+
+          <div class="sec-label">昨天</div>
+          <div class="conv-card glass" style="--bar:#16a37a">
+            <span class="tile"><span class="g-green" style="display:flex;"><svg class="ic"><use href="#i-gear"/></svg></span></span>
+            <div class="conv-main">
+              <div class="conv-title">代码审查：ChatViewModel</div>
+              <div class="conv-sub">SSE 解析里有个半包边界问题…</div>
+            </div>
+            <div class="conv-side"><div class="conv-time">22:41</div></div>
+          </div>
+          <div class="conv-card glass" style="--bar:#ec5fa4">
+            <span class="tile"><span class="g-pink" style="display:flex;"><svg class="ic"><use href="#i-doc"/></svg></span></span>
+            <div class="conv-main">
+              <div class="conv-title">英文播客精听</div>
+              <div class="conv-sub">这一期的主题是注意力经济…</div>
+            </div>
+            <div class="conv-side"><div class="conv-time">18:03</div></div>
+          </div>
+        </main>
+
+        <header class="head">
+          <div class="row">
+            <span class="avatar">禾</span>
+            <div>
+              <div class="hello-t">早上好，阿禾 <span class="grad-text">✦</span></div>
+              <div class="hello-s">昨天的旅行计划有了新灵感</div>
+            </div>
+          </div>
+          <div class="search glass"><svg class="ic"><use href="#i-search"/></svg>搜索对话</div>
+        </header>
+
+        <footer class="tabbar-halo glass">
+          <div class="fab"><svg class="ic"><use href="#i-plus"/></svg></div>
+          <div class="tab-item on"><svg class="ic"><use href="#i-chat"/></svg>对话</div>
+          <div class="tab-item"><svg class="ic"><use href="#i-gear"/></svg>设置</div>
+        </footer>
+      </div>
+    </div>
+    <div class="caption">
+      <h3>看点</h3>
+      <p>极光背景 + 统一白玻璃卡片（左侧彩色分类条）。Tab Bar 中央的凸起玻璃 FAB 是全方案的视觉锚点：点击后通过 glassEffectID morph 展开为"新对话面板"。搜索胶囊中的玻璃会透出下方流动的色块。</p>
+      <div class="tags"><span>极光背景层</span><span>白玻璃卡片</span><span>中央 FAB</span><span>渐变点缀</span></div>
+    </div>
+  </div>
+
+  <!-- ② 对话页 -->
+  <div class="device-col">
+    <span class="screen-no">② AI 对话页 · 无网络横幅 + Token 用量</span>
+    <div class="phone">
+      <span class="side-btn btn-power"></span><span class="side-btn btn-vol-up"></span><span class="side-btn btn-vol-dn"></span><span class="side-btn btn-action"></span>
+      <div class="screen" data-status="dark">
+        <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+        <main class="content chat-flow">
+          <div class="tstamp">今天 9:36</div>
+
+          <div class="msg-user">
+            <div class="bubble-user">SwiftUI 里 withAnimation 和 .animation() 有什么区别？</div>
+            <div class="msg-meta">9:36 已送达</div>
+          </div>
+
+          <div class="msg-ai">
+            <span class="ai-orb"><svg class="ic"><use href="#i-sparkle"/></svg></span>
+            <div class="ai-body">
+              <div class="ai-card glass">
+                <p>两者都能产生动画，但<b>触发方式</b>不同：</p>
+                <ul>
+                  <li><b>withAnimation</b>：显式包裹一次状态变更；</li>
+                  <li><b>.animation(_:value:)</b>：声明式绑定到值。</li>
+                </ul>
+                <div class="codeblock">
+                  <div class="chead"><span>SwiftUI</span><span class="cp"><svg class="ic"><use href="#i-copy"/></svg>复制</span></div>
+                  <pre><span class="fn">withAnimation</span>(<span class="ty">.snappy</span>) {
+    isExpanded.<span class="fn">toggle</span>()
+}</pre>
+                </div>
+              </div>
+              <span class="usage-chip glass-soft"><svg class="ic"><use href="#i-gauge"/></svg>1,024 tokens · 约 ¥0.002</span>
+            </div>
+          </div>
+
+          <div class="msg-user">
+            <div class="bubble-user">那 spring 和 ease 怎么选？</div>
+                      </div>
+        </main>
+
+        <header class="chat-nav glass">
+          <div class="mini-btn"><svg class="ic"><use href="#i-chev-l"/></svg></div>
+          <div class="nav-title">SwiftUI 动画答疑<span class="st">DeepSeek-V3.2 · 等待网络</span></div>
+          <div class="mini-btn"><svg class="ic"><use href="#i-dots"/></svg></div>
+        </header>
+
+        <div class="net-banner"><svg class="ic"><use href="#i-warn"/></svg>无网络连接 · 恢复后将自动继续生成</div>
+
+        <footer class="input-area">
+          <div class="chip-row">
+            <span class="model-chip glass"><span class="md"></span>DeepSeek-V3.2<svg class="ic"><use href="#i-chev-l"/></svg></span>
+            <span class="gen-chip"><span class="pulse"></span>等待网络</span>
+          </div>
+          <div class="input-bar glass">
+            <span class="ph">给 AI 发送消息</span>
+            <svg class="ic"><use href="#i-mic"/></svg>
+            <span class="send-btn"><svg class="ic"><use href="#i-up"/></svg></span>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <div class="caption">
+      <h3>看点</h3>
+      <p>悬浮式玻璃导航胶囊（不贴边，四周露出背景色）+ 无网络横幅（红玻璃）。用户气泡是蓝紫 tinted 玻璃，AI 回复带渐变小 orb；每条 AI 回复下方有 Token 用量胶囊，成本透明。</p>
+      <div class="tags"><span>悬浮导航胶囊</span><span>tinted 气泡</span><span>Token 用量</span><span>无网络横幅</span></div>
+    </div>
+  </div>
+
+  <!-- ③ 设置页 -->
+  <div class="device-col">
+    <span class="screen-no">③ 设置页</span>
+    <div class="phone">
+      <span class="side-btn btn-power"></span><span class="side-btn btn-vol-up"></span><span class="side-btn btn-vol-dn"></span><span class="side-btn btn-action"></span>
+      <div class="screen" data-status="dark">
+        <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+        <main class="content set-pad">
+          <div class="set-card glass">
+            <div class="sec-h">API 服务</div>
+            <div class="set-row"><span class="lab">提供商</span><span class="val">DeepSeek<svg class="ic"><use href="#i-chev-r"/></svg></span></div>
+                        <div class="set-row"><span class="lab">API Key</span><span class="val ok"><svg class="ic"><use href="#i-check"/></svg>已配置 · sk-••••3f9a</span></div>
+            <div class="set-row"><span class="lab">默认模型</span><span class="val">deepseek-chat<svg class="ic"><use href="#i-chev-r"/></svg></span></div>
+          </div>
+
+          <div class="set-card glass">
+            <div class="sec-h">外观</div>
+            <div class="set-row"><span class="lab">主题</span>
+              <span class="seg"><span class="on">跟随系统</span><span>浅色</span><span>深色</span></span>
+            </div>
+            <div class="set-row"><span class="lab">背景光晕</span><span class="toggle"></span></div>
+            <div class="set-row"><span class="lab">液态玻璃效果</span><span class="toggle"></span></div>
+          </div>
+
+          <div class="set-card glass">
+            <div class="sec-h">数据</div>
+            <div class="set-row"><span class="lab">对话记录</span><span class="val">56 条 · 12.4 MB<svg class="ic"><use href="#i-chev-r"/></svg></span></div>
+            <div class="set-row"><span class="lab">导出备份</span><span class="val"><svg class="ic"><use href="#i-chev-r"/></svg></span></div>
+            <div class="set-row danger"><span class="lab">清除全部对话</span></div>
+          </div>
+
+          <div style="margin:4px 8px 0;font-size:11px;color:#9b98b5;text-align:center;">GlassChat 1.0.0 (Build 1) · 对话数据仅存于本机</div>
+        </main>
+
+        <header class="head" style="padding-top:72px;">
+          <div class="hello-t" style="font-size:26px;">设置</div>
+        </header>
+
+        <footer class="tabbar-halo glass">
+          <div class="fab"><svg class="ic"><use href="#i-plus"/></svg></div>
+          <div class="tab-item"><svg class="ic"><use href="#i-chat"/></svg>对话</div>
+          <div class="tab-item on"><svg class="ic"><use href="#i-gear"/></svg>设置</div>
+        </footer>
+      </div>
+    </div>
+    <div class="caption">
+      <h3>看点</h3>
+      <p>玻璃分组卡 + 渐变开关/渐变选中态。"背景光晕"与"液态玻璃效果"是两个独立开关——光晕可关而玻璃保留，这是防止视觉疲劳的后路；API Key 同样只显示尾号。</p>
+      <div class="tags"><span>渐变开关</span><span>光晕独立开关</span><span>玻璃分组卡</span></div>
+    </div>
+  </div>
+
+  <!-- ④ 空状态 -->
+  <div class="device-col">
+    <span class="screen-no">④ 新建对话 · 空状态</span>
+    <div class="phone">
+      <span class="side-btn btn-power"></span><span class="side-btn btn-vol-up"></span><span class="side-btn btn-vol-dn"></span><span class="side-btn btn-action"></span>
+      <div class="screen" data-status="dark">
+        <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+        <main class="content">
+          <div class="hello2">
+            <h2>早上好，<span class="grad-text">阿禾</span></h2>
+            <div class="sub">今天想探索点什么？</div>
+          </div>
+          <div class="empty-hero glass">
+            <div class="orb-big"><svg class="ic"><use href="#i-sparkle"/></svg></div>
+            <h3>新的对话已经准备好</h3>
+            <p>从下面的灵感开始，或直接输入你的问题</p>
+            <div class="chips">
+              <span class="chip glass-soft">帮我写一封请假邮件</span>
+              <span class="chip glass-soft">用通俗语言解释 async/await</span>
+              <span class="chip glass-soft">为京都之旅列一份清单</span>
+              <span class="chip glass-soft">把这段话翻译成英文</span>
+            </div>
+          </div>
+        </main>
+
+        <footer class="input-area">
+          <div class="chip-row">
+            <span class="model-chip glass"><span class="md"></span>DeepSeek-V3.2<svg class="ic"><use href="#i-chev-l"/></svg></span>
+            <span class="gen-chip" style="color:#9b98b5;">DeepSeek API</span>
+          </div>
+          <div class="input-bar glass">
+            <span class="ph">给 AI 发送消息</span>
+            <span class="send-btn"><svg class="ic"><use href="#i-up"/></svg></span>
+          </div>
+        </footer>
+
+      </div>
+    </div>
+    <div class="caption">
+      <h3>看点</h3>
+      <p>渐变问候语 + 带光环的渐变 orb + 玻璃建议胶囊。FAB 在空状态页与 Tab Bar 保持 morph 关系：点 FAB 新建对话时，按钮会"融化"进输入栏——这是本方案最具记忆点的动效。</p>
+      <div class="tags"><span>渐变问候</span><span>光环 orb</span><span>FAB morph</span></div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footnote">
+  本页为 HTML/CSS 高保真示意；实现时背景光晕建议用静态渐变 + 极缓的位移动画（或完全静态），避免全屏实时模糊动画带来的功耗；tinted 气泡用 <b>.glassEffect(.regular.tint(...))</b> 实现。
+</footer>
+
+<script src="assets/preview.js"></script>
+</body>
+</html>

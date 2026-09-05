@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>方案 A · 曜黑 Glass — Liquid Glass Chat App UI 预览</title>
+<link rel="stylesheet" href="assets/preview.css">
+<style>
+/* ============ 方案 A：曜黑 Glass（深色） ============ */
+.screen {
+  --bg: #0a0b10;
+  --fg: #eceef4;
+  --sec: #9aa0b0;
+  --faint: #62687a;
+  color: var(--fg);
+  background:
+    radial-gradient(520px 420px at 108% -8%, rgba(94, 118, 255, 0.13), transparent 62%),
+    radial-gradient(560px 460px at -12% 104%, rgba(124, 92, 255, 0.11), transparent 60%),
+    #0a0b10;
+}
+
+/* 玻璃基底 */
+.glass {
+  background: linear-gradient(165deg, rgba(40, 44, 62, 0.58), rgba(20, 22, 33, 0.42));
+  backdrop-filter: blur(26px) saturate(1.5);
+  -webkit-backdrop-filter: blur(26px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.13), 0 14px 34px rgba(0, 0, 0, 0.42);
+}
+.glass-soft {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.ic { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; display: block; }
+
+.content { position: absolute; inset: 0; overflow: hidden; padding: 0 16px; }
+
+/* ---------- ① 对话列表 ---------- */
+.list-head { padding: 74px 4px 0; }
+.list-head .row { display: flex; align-items: center; justify-content: space-between; }
+.large-title { font-size: 33px; font-weight: 800; letter-spacing: 0.2px; }
+.text-btn { font-size: 15.5px; color: var(--accent, #6ea3ff); font-weight: 500; }
+.screen { --accent: #6ea3ff; }
+.circle-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #e8ebf6;
+}
+.search {
+  margin-top: 14px;
+  height: 42px; border-radius: 999px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 15px;
+  color: var(--sec); font-size: 15px;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.search .ic { width: 17px; height: 17px; opacity: 0.8; }
+
+.sec-label { margin: 20px 6px 8px; font-size: 12.5px; font-weight: 700; letter-spacing: 0.8px; color: var(--faint); }
+.conv-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 13px; border-radius: 20px; margin-bottom: 8px;
+}
+.conv-card .tile {
+  width: 40px; height: 40px; border-radius: 13px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  color: #aeb6d8;
+}
+.conv-card .tile.tint-blue { color: #8ab4ff; }
+.conv-card .tile.tint-green { color: #7fd8ab; }
+.conv-card .tile.tint-orange { color: #ffc48a; }
+.conv-card .tile.tint-violet { color: #c0a8ff; }
+.conv-main { flex: 1; min-width: 0; }
+.conv-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.conv-title .ic { width: 13px; height: 13px; color: #8ab4ff; }
+.conv-sub { font-size: 12.8px; color: var(--sec); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.conv-side { text-align: right; flex: none; }
+.conv-time { font-size: 11.5px; color: var(--faint); }
+.dot-unread { width: 8px; height: 8px; border-radius: 50%; background: #6ea3ff; margin: 6px 2px 0 auto; box-shadow: 0 0 8px rgba(110, 163, 255, 0.8); }
+
+/* 悬浮 Tab Bar */
+.tabbar-float {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  width: 236px; height: 60px; border-radius: 999px;
+  display: flex; align-items: center; justify-content: space-around;
+  z-index: 500; padding: 0 8px;
+}
+.tab-item { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; color: var(--sec); width: 86px; padding: 7px 0; border-radius: 999px; }
+.tab-item .ic { width: 21px; height: 21px; }
+.tab-item.on { color: #a9c6ff; background: rgba(110, 163, 255, 0.14); border: 1px solid rgba(110, 163, 255, 0.18); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10); }
+.list-pad { padding-top: 218px; padding-bottom: 130px; }
+
+/* ---------- ② 对话页 ---------- */
+.chat-nav {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 500;
+  padding: 58px 14px 10px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.chat-nav .nav-title { flex: 1; text-align: center; font-size: 16.5px; font-weight: 700; }
+.mini-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #dfe4f2; flex: none;
+}
+.mini-btn .ic { width: 17px; height: 17px; }
+.chat-flow { padding: 118px 16px 200px; display: flex; flex-direction: column; gap: 11px; }
+.tstamp { text-align: center; font-size: 11.5px; color: var(--faint); margin: 2px 0 4px; }
+
+.msg-user { display: flex; flex-direction: column; align-items: flex-end; }
+.bubble-user {
+  max-width: 82%;
+  padding: 11px 15px;
+  border-radius: 20px; border-bottom-right-radius: 7px;
+  font-size: 15px; line-height: 1.55; color: #f2f5ff;
+  background: linear-gradient(160deg, rgba(88, 120, 220, 0.42), rgba(52, 66, 140, 0.30));
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid rgba(142, 172, 255, 0.30);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 22px rgba(30, 50, 120, 0.25);
+}
+.msg-meta { font-size: 10.5px; color: var(--faint); margin-top: 5px; display: flex; align-items: center; gap: 3px; }
+.msg-meta .ic { width: 11px; height: 11px; color: #6ea3ff; }
+
+.msg-ai { max-width: 94%; font-size: 14.6px; line-height: 1.72; color: #dde1ee; }
+.msg-ai p { margin: 0 0 8px; }
+.msg-ai ul { margin: 0 0 8px; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.msg-ai li::marker { color: #6ea3ff; }
+.msg-ai b { color: #f2f4fb; }
+.msg-ai code.inline {
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  font-size: 12.8px; background: rgba(255, 255, 255, 0.09);
+  padding: 1.5px 5px; border-radius: 5px; color: #b9d2ff;
+}
+
+.codeblock { margin: 2px 0 8px; border-radius: 14px; overflow: hidden; background: #12141d; border: 1px solid rgba(255, 255, 255, 0.08); }
+.chead { display: flex; align-items: center; justify-content: space-between; padding: 7px 12px; background: rgba(255, 255, 255, 0.045); border-bottom: 1px solid rgba(255, 255, 255, 0.06); font-size: 11px; color: #8b93a8; letter-spacing: 0.4px; }
+.chead .copy { display: flex; align-items: center; gap: 4px; color: #9fb4d8; font-size: 11px; }
+.chead .copy .ic { width: 12px; height: 12px; }
+.codeblock pre { padding: 11px 14px; font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: 12.3px; line-height: 1.75; color: #e4e8f4; }
+.kw { color: #ff7ab2; } .ty { color: #7cc7ff; } .fn { color: #63d8c4; } .cm { color: #667083; } .pr { color: #c9b8ff; } .num { color: #ffc48a; }
+
+.err-card {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: rgba(229, 72, 77, 0.10);
+  border: 1px solid rgba(229, 72, 77, 0.32);
+  border-radius: 16px; padding: 11px 13px; max-width: 92%;
+}
+.err-card .ic { width: 17px; height: 17px; color: #ff8a8e; flex: none; margin-top: 1px; }
+.err-card .t { font-size: 13px; font-weight: 650; color: #ff9ea1; }
+.err-card .d { font-size: 11.8px; color: #cf9ba0; margin-top: 2px; }
+.err-retry {
+  margin-left: auto; align-self: center;
+  font-size: 12.5px; font-weight: 650; color: #a9c6ff;
+  padding: 6px 13px; border-radius: 999px;
+}
+
+.caret { display: inline-block; width: 3px; height: 1em; background: #6ea3ff; margin-left: 2px; vertical-align: -0.12em; border-radius: 1px; animation: blink 1.05s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.stop-pill {
+  position: absolute; bottom: 112px; right: 18px; z-index: 500;
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12.5px; font-weight: 650; color: #ffd7d8;
+  padding: 8px 14px; border-radius: 999px;
+  background: rgba(70, 32, 38, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 130, 135, 0.30);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+.stop-pill .ic { width: 12px; height: 12px; fill: #ff9ea1; stroke: none; }
+
+/* 输入区 */
+.input-area { position: absolute; left: 0; right: 0; bottom: 0; z-index: 500; padding: 0 14px 46px; display: flex; flex-direction: column; gap: 10px; }
+.chip-row { display: flex; justify-content: space-between; align-items: center; padding: 0 4px; }
+.model-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: #c4cede;
+  padding: 7px 13px; border-radius: 999px;
+}
+.model-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: #7fd8ab; box-shadow: 0 0 7px rgba(127, 216, 171, 0.9); }
+.model-chip .ic { width: 12px; height: 12px; opacity: 0.7; }
+.gen-chip { font-size: 11.5px; color: var(--faint); display: flex; align-items: center; gap: 6px; }
+.gen-chip .pulse { width: 7px; height: 7px; border-radius: 50%; background: #6ea3ff; animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: 0.25; } }
+
+.input-bar {
+  height: 56px; border-radius: 999px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 9px 0 18px;
+}
+.input-bar .ph { flex: 1; font-size: 15px; color: #7d8496; }
+.send-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  background: linear-gradient(160deg, #4f86ff, #3b5fd9);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.38), 0 8px 20px rgba(64, 106, 230, 0.45);
+}
+.send-btn .ic { width: 19px; height: 19px; stroke-width: 2; }
+
+/* ---------- ③ 设置页 ---------- */
+.set-card { border-radius: 22px; margin-bottom: 10px; overflow: hidden; }
+.set-card .sec-h { padding: 11px 17px 2px; font-size: 12px; font-weight: 700; letter-spacing: 0.8px; color: var(--faint); }
+.set-row { display: flex; align-items: center; gap: 11px; padding: 10.5px 17px; position: relative; }
+.set-row + .set-row::before { content: ""; position: absolute; top: 0; left: 17px; right: 0; height: 1px; background: rgba(255, 255, 255, 0.07); }
+.set-row .lab { font-size: 14.8px; flex: 1; }
+.set-row .val { font-size: 14px; color: var(--sec); display: flex; align-items: center; gap: 5px; }
+.set-row .val .ic { width: 13px; height: 13px; opacity: 0.55; }
+.set-row .ok { color: #7fd8ab; display: flex; align-items: center; gap: 5px; font-size: 13.5px; }
+.set-row .ok .ic { width: 13px; height: 13px; }
+.set-row.danger .lab, .set-row.danger .val { color: #ff8a8e; }
+.toggle { width: 46px; height: 28px; border-radius: 999px; background: #34c759; position: relative; flex: none; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2); }
+.toggle::after { content: ""; position: absolute; top: 2px; right: 2px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); }
+.seg { display: flex; background: rgba(255, 255, 255, 0.07); border-radius: 9px; padding: 2px; font-size: 12.5px; color: var(--sec); }
+.seg span { padding: 4px 10px; border-radius: 7px; }
+.seg .on { background: rgba(255, 255, 255, 0.14); color: #fff; border: 1px solid rgba(255, 255, 255, 0.10); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
+.set-pad { padding-top: 150px; padding-bottom: 118px; }
+
+/* ---------- ④ 空状态 ---------- */
+.hello { padding: 128px 22px 0; }
+.hello h2 { font-size: 30px; font-weight: 800; letter-spacing: 0.2px; }
+.hello .sub { margin-top: 8px; font-size: 15px; color: var(--sec); }
+.empty-hero { margin: 34px 4px 0; border-radius: 26px; padding: 26px 22px 24px; text-align: center; }
+.empty-hero .orb {
+  width: 64px; height: 64px; margin: 0 auto; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #bcd0ff;
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.05) 58%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 12px 30px rgba(70, 100, 220, 0.22);
+}
+.empty-hero .orb .ic { width: 28px; height: 28px; }
+.empty-hero h3 { margin-top: 14px; font-size: 17.5px; font-weight: 700; }
+.empty-hero p { margin-top: 6px; font-size: 13px; color: var(--sec); line-height: 1.7; }
+.chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; justify-content: center; }
+.chip { font-size: 12.8px; color: #cdd6ea; padding: 9px 14px; border-radius: 999px; }
+.empty-pad { padding-top: 0; }
+</style>
+</head>
+<body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.4-4.4"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="5.5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18.5" cy="12" r="1.7"/></g></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M12 3v2.6M12 18.4V21M3 12h2.6M18.4 12H21M5.6 5.6l1.9 1.9M16.5 16.5l1.9 1.9M18.4 5.6l-1.9 1.9M7.5 16.5l-1.9 1.9"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.4c0 4.1-4 7.4-9 7.4-1 0-2-.13-2.9-.38L4.4 20l1.1-3.5C4 15.2 3 13.4 3 11.4 3 7.3 7 4 12 4s9 3.3 9 7.4Z"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2.2"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H16"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M11 4l1.6 4.6L17 10.2l-4.4 1.6L11 16.4 9.4 11.8 5 10.2l4.4-1.6L11 4Z"/><path d="M18 14.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M9.5 14.5 4 20"/><path d="M14 3.5 20.5 10l-2.6.9-4.9 4.9.9 2.6-2.4 1-6-6 1-2.4 2.6.9 4.9-4.9L14 3.5Z"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4.5 2.8 19.5h18.4L12 4.5Z"/><path d="M12 10.2v4"/><circle cx="12" cy="16.6" r="0.55" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9.5" y="4" width="5" height="10" rx="2.5"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v3"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8.5-8.5M17 5l2.5 2.5M14 8l2.5 2.5"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v13c0 1.55 3.4 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-13M4.5 12c0 1.55 3.4 2.8 7.5 2.8s7.5-1.25 7.5-2.8"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11.2v4.8"/><circle cx="12" cy="8" r="0.55" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-paint" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-2 0-1.3-1-1.7-1-3 0-1 .8-2 2-2h2.5c2 0 3.5-1.4 3.5-3.5C21 6.5 17 3 12 3Z"/><circle cx="8" cy="9" r="0.6" fill="currentColor" stroke="none"/><circle cx="12" cy="7" r="0.6" fill="currentColor" stroke="none"/><circle cx="7" cy="13.5" r="0.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5.5A1.5 1.5 0 0 1 11.5 4h1A1.5 1.5 0 0 1 14 5.5V7M7 7l.8 12.1A2 2 0 0 0 9.8 21h4.4a2 2 0 0 0 2-1.9L17 7"/></symbol>
+  <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 15V4M8 7.5 12 3.5l4 4"/><path d="M5 13v5.5A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V13"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 13.6A8.2 8.2 0 0 1 10.4 4 8.2 8.2 0 1 0 20 13.6Z"/></symbol>
+</svg>
+
+<!-- 顶部导航 -->
+<nav class="scheme-nav">
+  <span class="brand">LG Chat · UI 预览</span>
+  <a href="index.html">总览对比</a>
+  <a href="scheme-a-dark.html" class="current"><span class="sw" style="background:#14161f"></span>方案 A · 曜黑 Glass</a>
+  <a href="scheme-b-native.html"><span class="sw" style="background:#f2f2f7"></span>方案 B · 原生镜面</a>
+  <a href="scheme-c-halo.html"><span class="sw" style="background:linear-gradient(135deg,#7aa5ff,#c79bff)"></span>方案 C · 晨曦 Halo</a>
+  <a href="scheme-d-minimal.html"><span class="sw" style="background:#fbfbf9"></span>方案 D · 素笺 Minimal</a>
+</nav>
+
+<!-- 页头 -->
+<header class="hero">
+  <div class="kicker-row"><span class="kicker">Scheme A · Dark Liquid Glass</span></div>
+  <h1>曜黑 Glass</h1>
+  <p class="tagline">以深色为底的沉浸式玻璃系统：所有悬浮元素——导航、Tab Bar、输入栏、按钮——都是一层薄薄的深色玻璃，内容从其下滑过。光只出现在边缘高光与发送键上，克制、高级、夜间友好。</p>
+  <div class="badges">
+    <span class="badge dark">深色为主</span>
+    <span class="badge">夜间友好</span>
+    <span class="badge">悬浮玻璃组件</span>
+    <span class="badge">AI 消息无气泡 · 用户消息玻璃胶囊</span>
+    <span class="badge">开发量：中等</span>
+  </div>
+</header>
+
+<section class="panel">
+  <div class="cell"><h4>设计理念</h4><p>把 iOS 26 系统的"层级玻璃"完整搬进聊天场景：内容是唯一的主角，一切控件都是悬浮其上的玻璃层。深色底让玻璃的折射、高光与 blur 层次最容易被看见，是四种方案里"Liquid Glass 存在感"最强的一种。</p></div>
+  <div class="cell good"><h4>优点</h4><ul><li>玻璃层次感最强，最能展示 Liquid Glass</li><li>夜间 / 弱光环境非常舒适</li><li>科技感强，产品辨识度高</li></ul></div>
+  <div class="cell bad"><h4>缺点 / 注意点</h4><ul><li>强光白天环境下对比度下降</li><li>长文阅读需要控制行宽与字号</li><li>玻璃层数多，需留意滚动性能</li></ul></div>
+  <div class="cell"><h4>适合人群</h4><p>夜间重度使用者、喜欢科技感与极客气质的用户；也适合作为"展示 Liquid Glass 能力"的演示场景。</p></div>
+</section>
+
+<!-- ============ 屏幕舞台 ============ -->
+<main class="stage">
+
+  <!-- ① 对话列表页 -->
+  <div class="device-col">
+    <span class="screen-no">① 对话列表页</span>
+    <div class="phone">
+      <span class="side-btn btn-power"></span><span class="side-btn btn-vol-up"></span><span class="side-btn btn-vol-dn"></span><span class="side-btn btn-action"></span>
+      <div class="screen" data-status="light">
+        <main class="content list-pad">
+          <div class="conv-card glass-soft">
+            <span class="tile"><svg class="ic"><use href="#i-doc"/></svg></span>
+            <div class="conv-main">
+              <div class="conv-title">周报助手 <svg class="ic"><use href="#i-pin"/></svg></div>
+              <div class="conv-sub">已生成本周工作摘要，共 3 条重点…</div>
+            </div>
+            <div class="conv-side"><div class="conv-time">周三</div></div>
+          </div>
+
+          <div class="sec-label">今天</div>
+          <div class="conv-card glass">
+            <span class="tile tint-blue"><svg class="ic"><use href="#i-sparkle"/></svg></span>
+            <div class="conv-main">
+              <div class="conv-title">SwiftUI 动画答疑</div>
+              <div class="conv-sub">选择动画曲线的核心是拟物感与节奏…</div>
+            </div>
+            <div class="conv-side"><div class="conv-time">9:41</div><div class="dot-unread"></div></div>
+          </div>
+          <div class="conv-card glass-soft">
+            <span class="tile tint-orange"><svg class="ic"><use href="#i-doc"/></svg></span>
+            <div class="conv-main">
+              <div class="conv-title">京都五日旅行计划</div>
+              <div class="conv-sub">第三天上午去伏见稻荷大社，下午…</div>
+            </div>
+            <div class="conv-side"><div class="conv-time">8:12</div></div>
+          </div>
+
+          <div class="sec-label">昨天</div>
+          <div class="conv-card glass-soft">
+            <span class="tile tint-green"><svg class="ic"><use href="#i-gear"/></svg></span>
+            <div class="conv-main">
+              <div class="conv-title">代码审查：ChatViewModel</div>
+              <div class="conv-sub">SSE 解析里有个半包边界问题，建议…</div>
+            </div>
+            <div class="conv-side"><div class="conv-time">22:41</div></div>
+          </div>
+          <div class="conv-card glass-soft">
+            <span class="tile tint-violet"><svg class="ic"><use href="#i-doc"/></svg></span>
+            <div class="conv-main">
+              <div class="conv-title">英文播客精听</div>
+              <div class="conv-sub">这一期的主题是注意力经济，主播…</div>
+            </div>
+            <div class="conv-side"><div class="conv-time">18:03</div></div>
+          </div>
+
+          <div class="sec-label">更早</div>
+          <div class="conv-card glass-soft">
+            <span class="tile"><svg class="ic"><use href="#i-doc"/></svg></span>
+            <div class="conv-main">
+              <div class="conv-title">健身计划调整</div>
+              <div class="conv-sub">调整后的计划里，周四改成下肢训练…</div>
+            </div>
+            <div class="conv-side"><div class="conv-time">周一</div></div>
+          </div>
+        </main>
+
+        <header class="list-head" style="position:absolute;top:0;left:0;right:0;padding-left:20px;padding-right:20px;">
+          <div class="row">
+            <span class="text-btn">编辑</span>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="circle-btn glass"><svg class="ic" style="width:18px;height:18px"><use href="#i-plus"/></svg></div>
+            </div>
+          </div>
+          <div class="large-title" style="margin-top:2px;">对话</div>
+          <div class="search"><svg class="ic"><use href="#i-search"/></svg>搜索对话</div>
+        </header>
+
+        <footer class="tabbar-float glass">
+          <div class="tab-item on"><svg class="ic"><use href="#i-chat"/></svg>对话</div>
+          <div class="tab-item"><svg class="ic"><use href="#i-gear"/></svg>设置</div>
+        </footer>
+      </div>
+    </div>
+    <div class="caption">
+      <h3>看点</h3>
+      <p>悬浮玻璃 Tab Bar、玻璃搜索胶囊、半透明对话卡片。AI 消息无气泡、用户消息为蓝色玻璃胶囊——列表页的卡片只是"半透明材质"，玻璃 blur 留给真正悬浮的控件，避免全屏都是玻璃。</p>
+      <div class="tags"><span>悬浮 Tab Bar</span><span>玻璃搜索</span><span>大标题导航</span></div>
+    </div>
+  </div>
+
+  <!-- ② AI 对话页（流式输出） -->
+  <div class="device-col">
+    <span class="screen-no">② AI 对话页 · 流式输出 + 错误重试</span>
+    <div class="phone">
+      <span class="side-btn btn-power"></span><span class="side-btn btn-vol-up"></span><span class="side-btn btn-vol-dn"></span><span class="side-btn btn-action"></span>
+      <div class="screen" data-status="light">
+        <main class="content chat-flow">
+          <div class="tstamp">今天 9:36</div>
+
+          <div class="msg-user">
+            <div class="bubble-user">SwiftUI 里 withAnimation 和 .animation() 有什么区别？</div>
+            <div class="msg-meta">9:36 <svg class="ic"><use href="#i-check"/></svg> 已送达</div>
+          </div>
+
+          <div class="msg-ai">
+            <p>两者都能产生动画，但<b>触发方式</b>不同：</p>
+            <ul>
+              <li><b>withAnimation</b>：显式包裹一次状态变更，闭包内的改动一起动画；</li>
+              <li><b>.animation(_:value:)</b>：声明式绑定到某个值，值变化时自动动画。</li>
+            </ul>
+            <div class="codeblock">
+              <div class="chead"><span>SwiftUI</span><span class="copy"><svg class="ic"><use href="#i-copy"/></svg>复制</span></div>
+              <pre><span class="fn">withAnimation</span>(<span class="ty">.snappy</span>(duration: <span class="num">0.35</span>)) {
+    isExpanded.<span class="fn">toggle</span>()
+}</pre>
+            </div>
+          </div>
+
+          <div class="msg-user">
+            <div class="bubble-user">那 spring 和 ease 曲线该怎么选？</div>
+          </div>
+
+          <div class="err-card">
+            <svg class="ic"><use href="#i-warn"/></svg>
+            <div>
+              <div class="t">生成失败 · 网络连接中断</div>
+              <div class="d">请求已取消，未消耗 Token</div>
+            </div>
+            <span class="err-retry glass-soft">重试</span>
+          </div>
+
+          <div class="msg-ai">
+            <p>选曲线的核心是<b>节奏感</b>：spring 带回弹、更"物理"；ease 更平稳、更"机械"。<span class="caret"></span></p>
+          </div>
+        </main>
+
+        <header class="chat-nav glass">
+          <div class="mini-btn"><svg class="ic"><use href="#i-chev-l"/></svg></div>
+          <div class="nav-title">SwiftUI 动画答疑</div>
+          <div class="mini-btn"><svg class="ic"><use href="#i-dots"/></svg></div>
+        </header>
+
+        <div class="stop-pill"><svg class="ic"><use href="#i-stop"/></svg>停止生成</div>
+
+        <footer class="input-area">
+          <div class="chip-row">
+            <span class="model-chip glass"><span class="dot"></span>DeepSeek-V3.2<svg class="ic"><use href="#i-chev-l"/></svg></span>
+            <span class="gen-chip"><span class="pulse"></span>正在生成 · 3.2s</span>
+          </div>
+          <div class="input-bar glass">
+            <span class="ph">给 AI 发送消息</span>
+            <span class="send-btn"><svg class="ic"><use href="#i-up"/></svg></span>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <div class="caption">
+      <h3>看点</h3>
+      <p>导航栏是真实玻璃（消息从其下滑过）；流式输出有呼吸光标与"停止生成"胶囊；错误状态提供一键重试；输入栏上方是模型切换 Chip——发送键是本方案中唯一的彩色实心元素。</p>
+      <div class="tags"><span>玻璃导航栏</span><span>流式光标</span><span>停止生成</span><span>错误重试</span></div>
+    </div>
+  </div>
+
+  <!-- ③ 设置页 -->
+  <div class="device-col">
+    <span class="screen-no">③ 设置页</span>
+    <div class="phone">
+      <span class="side-btn btn-power"></span><span class="side-btn btn-vol-up"></span><span class="side-btn btn-vol-dn"></span><span class="side-btn btn-action"></span>
+      <div class="screen" data-status="light">
+        <main class="content set-pad">
+          <div class="set-card glass">
+            <div class="sec-h">API 服务</div>
+            <div class="set-row"><span class="lab">提供商</span><span class="val">DeepSeek<svg class="ic"><use href="#i-chev-r"/></svg></span></div>
+            <div class="set-row"><span class="lab">API Endpoint</span><span class="val">api.deepseek.com</span></div>
+            <div class="set-row"><span class="lab">API Key</span><span class="val ok"><svg class="ic"><use href="#i-check"/></svg>已配置 · sk-••••3f9a</span></div>
+            <div class="set-row"><span class="lab">模型</span><span class="val">deepseek-chat<svg class="ic"><use href="#i-chev-r"/></svg></span></div>
+          </div>
+
+          <div class="set-card glass">
+            <div class="sec-h">外观</div>
+            <div class="set-row"><span class="lab">主题</span>
+              <span class="seg"><span class="on">跟随系统</span><span>浅色</span><span>深色</span></span>
+            </div>
+            <div class="set-row"><span class="lab">液态玻璃效果</span><span class="toggle"></span></div>
+            <div class="set-row"><span class="lab">正文字号</span><span class="val">标准<svg class="ic"><use href="#i-chev-r"/></svg></span></div>
+          </div>
+
+          <div class="set-card glass">
+            <div class="sec-h">数据</div>
+            <div class="set-row"><span class="lab"><svg class="ic" style="width:16px;height:16px;margin-right:2px;vertical-align:-3px;"><use href="#i-db"/></svg> 对话记录</span><span class="val">56 条 · 12.4 MB</span></div>
+            <div class="set-row"><span class="lab">导出备份</span><span class="val"><svg class="ic"><use href="#i-chev-r"/></svg></span></div>
+            <div class="set-row danger"><span class="lab">清除全部对话</span></div>
+          </div>
+
+          <div class="set-card glass">
+            <div class="sec-h">关于</div>
+            <div class="set-row"><span class="lab">版本</span><span class="val">1.0.0 (Build 1)</span></div>
+          </div>
+        </main>
+
+        <header class="list-head" style="position:absolute;top:0;left:0;right:0;padding-left:20px;padding-right:20px;">
+          <div class="large-title">设置</div>
+        </header>
+
+        <footer class="tabbar-float glass">
+          <div class="tab-item"><svg class="ic"><use href="#i-chat"/></svg>对话</div>
+          <div class="tab-item on"><svg class="ic"><use href="#i-gear"/></svg>设置</div>
+        </footer>
+      </div>
+    </div>
+    <div class="caption">
+      <h3>看点</h3>
+      <p>设置分组是"玻璃卡片"而非整页玻璃——分组之间露出深色底，形成层次呼吸感。API Key 只显示尾号，绿色对勾表示 Keychain 校验通过；"液态玻璃效果"可整体关闭，回退为不透明材质。</p>
+      <div class="tags"><span>玻璃分组卡</span><span>Keychain 校验</span><span>玻璃开关可关闭</span></div>
+    </div>
+  </div>
+
+  <!-- ④ 空状态 / 新建对话 -->
+  <div class="device-col">
+    <span class="screen-no">④ 新建对话 · 空状态</span>
+    <div class="phone">
+      <span class="side-btn btn-power"></span><span class="side-btn btn-vol-up"></span><span class="side-btn btn-vol-dn"></span><span class="side-btn btn-action"></span>
+      <div class="screen" data-status="light">
+        <main class="content empty-pad">
+          <div class="hello">
+            <h2>晚上好 ✦</h2>
+            <div class="sub">今晚想聊点什么？</div>
+          </div>
+          <div class="empty-hero glass">
+            <div class="orb"><svg class="ic"><use href="#i-sparkle"/></svg></div>
+            <h3>开始一段新的对话</h3>
+            <p>历史记录保存在本机，随时可以继续上次的话题</p>
+            <div class="chips">
+              <span class="chip glass-soft">帮我写一封请假邮件</span>
+              <span class="chip glass-soft">用通俗语言解释 async/await</span>
+              <span class="chip glass-soft">为京都之旅列一份清单</span>
+            </div>
+          </div>
+        </main>
+
+        <footer class="input-area">
+          <div class="chip-row">
+            <span class="model-chip glass"><span class="dot"></span>DeepSeek-V3.2<svg class="ic"><use href="#i-chev-l"/></svg></span>
+            <span class="gen-chip" style="color:#62687a">DeepSeek API</span>
+          </div>
+          <div class="input-bar glass">
+            <span class="ph">给 AI 发送消息</span>
+            <span class="send-btn"><svg class="ic"><use href="#i-up"/></svg></span>
+          </div>
+        </footer>
+
+      </div>
+    </div>
+    <div class="caption">
+      <h3>看点</h3>
+      <p>时间问候 + 中央玻璃面板 + 建议问题胶囊。空状态把"输入栏"与"建议胶囊"都做成玻璃，与 Tab Bar 形成同一套材质语言；首次启动时会先出现 API Key 引导页（玻璃卡片形态一致）。</p>
+      <div class="tags"><span>玻璃欢迎面板</span><span>建议问题</span><span>首次启动引导</span></div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footnote">
+  本页为 HTML/CSS 高保真示意，用于确认设计方向；实际开发将以 SwiftUI 原生 <b>glassEffect / GlassEffectContainer</b> 实现，玻璃的折射、高光与实时模糊由系统渲染，效果会优于网页模拟。
+</footer>
+
+<script src="assets/preview.js"></script>
+</body>
+</html>

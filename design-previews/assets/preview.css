@@ -1,0 +1,237 @@
+/* ============================================================
+   Liquid Glass Chat App — UI 预览共享样式
+   页面骨架 / iPhone 框体 / 状态栏 / 标注卡片 / 方案切换
+   ============================================================ */
+
+:root {
+  --page-bg: #e7e8ee;
+  --page-fg: #17171c;
+  --muted: #6b6b76;
+  --card: #ffffff;
+  --hairline: rgba(20, 20, 40, 0.09);
+  --radius-card: 18px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background:
+    radial-gradient(1200px 500px at 15% -5%, rgba(120, 130, 190, 0.14), transparent 60%),
+    radial-gradient(1000px 460px at 90% 0%, rgba(150, 120, 190, 0.12), transparent 55%),
+    var(--page-bg);
+  color: var(--page-fg);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+    "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------------- 顶部方案切换 ---------------- */
+.scheme-nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  backdrop-filter: blur(22px) saturate(1.6);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6);
+  background: rgba(255, 255, 255, 0.55);
+  border-bottom: 1px solid var(--hairline);
+}
+.scheme-nav .brand {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  margin-right: 6px;
+  white-space: nowrap;
+}
+.scheme-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--page-fg);
+  text-decoration: none;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.scheme-nav a:hover { background: rgba(0, 0, 0, 0.05); }
+.scheme-nav a.current {
+  background: #17171c;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.scheme-nav .sw {
+  width: 10px; height: 10px; border-radius: 50%;
+  display: inline-block;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+}
+
+/* ---------------- 方案页头 ---------------- */
+.hero { max-width: 1980px; margin: 0 auto; padding: 40px 32px 6px; }
+.hero .kicker-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.hero h1 { font-size: 34px; font-weight: 800; letter-spacing: 0.3px; margin-top: 8px; }
+.hero .tagline { margin-top: 10px; font-size: 15.5px; color: #3c3c46; max-width: 860px; line-height: 1.75; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.badge {
+  font-size: 12.5px; font-weight: 600;
+  padding: 6px 12px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(20, 20, 40, 0.08);
+  color: #33333c;
+}
+.badge.dark { background: #1b1c22; color: #f2f2f7; border-color: rgba(255,255,255,.15); }
+
+/* 设计理念 / 优缺点 / 人群 面板 */
+.panel {
+  max-width: 1980px;
+  margin: 22px auto 0;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(240px, 1fr));
+  gap: 14px;
+}
+.panel .cell {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  padding: 16px 18px;
+  box-shadow: 0 1px 2px rgba(10, 15, 40, 0.05);
+}
+.panel .cell h4 {
+  font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 8px; font-weight: 700;
+}
+.panel .cell p, .panel .cell li { font-size: 13.5px; line-height: 1.8; color: #33333c; }
+.panel .cell ul { list-style: none; }
+.panel .cell li { padding-left: 16px; position: relative; }
+.panel .cell li::before {
+  content: ""; position: absolute; left: 2px; top: 10px;
+  width: 5px; height: 5px; border-radius: 50%; background: #9a9aa6;
+}
+.panel .cell.good li::before { background: #34a853; }
+.panel .cell.bad li::before { background: #e5484d; }
+
+/* ---------------- 屏幕舞台 ---------------- */
+.stage {
+  max-width: 1980px;
+  margin: 30px auto 0;
+  padding: 10px 32px 70px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(330px, 1fr));
+  gap: 26px;
+  justify-items: center;
+}
+.device-col { width: 100%; max-width: 417px; display: flex; flex-direction: column; align-items: center; }
+.screen-no {
+  align-self: flex-start;
+  font-size: 12.5px; font-weight: 700; letter-spacing: 1px;
+  color: var(--muted); margin-bottom: 10px; text-transform: uppercase;
+}
+
+/* ---------------- iPhone 框体 ---------------- */
+.phone {
+  position: relative;
+  width: 417px;
+  padding: 12px;
+  border-radius: 70px;
+  background: linear-gradient(155deg, #4a4a52 0%, #17171b 38%, #232329 70%, #3c3c44 100%);
+  box-shadow:
+    0 30px 70px rgba(12, 18, 48, 0.38),
+    0 6px 18px rgba(10, 14, 40, 0.28),
+    inset 0 0 4px rgba(255, 255, 255, 0.4),
+    inset 0 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+.phone .side-btn { position: absolute; background: #2c2c33; border-radius: 2px; }
+.phone .btn-power  { right: -2.5px; top: 250px; width: 3.5px; height: 108px; }
+.phone .btn-vol-up { left: -2.5px; top: 200px; width: 3.5px; height: 62px; }
+.phone .btn-vol-dn { left: -2.5px; top: 274px; width: 3.5px; height: 62px; }
+.phone .btn-action { left: -2.5px; top: 138px; width: 3.5px; height: 36px; }
+
+.screen {
+  position: relative;
+  width: 393px;
+  height: 852px;
+  border-radius: 58px;
+  overflow: hidden;
+  background: var(--bg, #f2f2f7);
+  isolation: isolate;
+  transform: translateZ(0);
+}
+
+/* 灵动岛 / 状态栏 / Home 指示条（由 preview.js 注入） */
+.island {
+  position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+  width: 122px; height: 36px; border-radius: 20px;
+  background: #000; z-index: 900;
+}
+.island::after {
+  content: ""; position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  width: 10px; height: 10px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #1e2f4a 0%, #060a12 55%);
+}
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 58px;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 16px 34px 0 42px;
+  z-index: 800; pointer-events: none;
+}
+.statusbar .time { font-size: 16px; font-weight: 650; letter-spacing: 0.3px; line-height: 22px; font-variant-numeric: tabular-nums; }
+.statusbar .sicons { display: flex; align-items: center; gap: 7px; height: 22px; }
+.statusbar svg { display: block; }
+.screen[data-status="light"] .statusbar,
+.screen[data-status="light"] .homebar { color: #ffffff; }
+.screen[data-status="dark"]  .statusbar,
+.screen[data-status="dark"]  .homebar { color: #0b0b0f; }
+.homebar {
+  position: absolute; bottom: 9px; left: 50%; transform: translateX(-50%);
+  width: 140px; height: 5px; border-radius: 3px;
+  background: currentColor; z-index: 900; opacity: 0.95;
+  pointer-events: none;
+}
+
+/* ---------------- 屏幕下方标注 ---------------- */
+.caption {
+  margin-top: 18px;
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  padding: 15px 17px;
+  box-shadow: 0 1px 2px rgba(10, 15, 40, 0.05);
+}
+.caption h3 { font-size: 14.5px; font-weight: 700; margin-bottom: 7px; }
+.caption p { font-size: 12.8px; line-height: 1.8; color: #4a4a55; }
+.caption .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.caption .tags span {
+  font-size: 11px; font-weight: 600; color: #55555f;
+  background: rgba(20, 20, 40, 0.055);
+  padding: 4px 9px; border-radius: 999px;
+}
+
+/* 页脚说明 */
+.footnote {
+  max-width: 1980px; margin: 0 auto; padding: 0 32px 60px;
+  font-size: 12.5px; color: var(--muted); line-height: 1.8;
+}
+
+@media (max-width: 1780px) {
+  .stage { grid-template-columns: repeat(2, minmax(330px, 1fr)); }
+  .panel { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .stage { grid-template-columns: 1fr; }
+  .panel { grid-template-columns: 1fr; }
+}
