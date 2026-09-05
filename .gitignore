@@ -13,3 +13,5 @@ Payload/
 
 # 工具
 .zcode/
+integrity_check.py
+patch_*.py
