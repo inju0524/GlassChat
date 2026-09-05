@@ -22,8 +22,13 @@ struct ChatView: View {
         ZStack {
             AppTheme.bg.ignoresSafeArea()
             if messages.isEmpty {
-                ChatEmptyView { text in
-                    viewModel.setInput(text)
+                VStack(spacing: 10) {
+                    ChatEmptyView { text in
+                        viewModel.setInput(text)
+                    }
+                    Text("未配置 API Key 时将无法获得真实回复")
+                        .font(.themeCaption())
+                        .foregroundStyle(AppTheme.textTertiary)
                 }
             } else {
                 messageList
@@ -63,9 +68,13 @@ struct ChatView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 14) {
                     ForEach(messages) { message in
+                        let isLastAssistant = message.id == messages.last?.id
+                            && message.role == .assistant && message.status == .finished
                         MessageView(
                             message: message,
-                            onRetry: message.status == .failed ? { retryFailed(message) } : nil
+                            onRetry: message.status == .failed ? { retryFailed(message) } : nil,
+                            onRegenerate: isLastAssistant && !viewModel.isGenerating
+                                ? { regenerateLast() } : nil
                         )
                         .id(message.persistentModelID)
                     }
@@ -115,13 +124,35 @@ struct ChatView: View {
                     set: { viewModel.setInput($0) }
                 ),
                 isGenerating: viewModel.isGenerating,
-                onSend: { viewModel.send(context: modelContext, conversation: conversation) },
+                onSend: {
+                    viewModel.send(
+                        context: modelContext,
+                        conversation: conversation,
+                        provider: makeProvider()
+                    )
+                },
                 onStop: { viewModel.stop() }
             )
         }
         .padding(.horizontal, 14)
         .padding(.top, 8)
         .padding(.bottom, 10)
+    }
+
+    /// 有真实配置时按预设走兼容协议或 Responses API；未配置则回退 Echo 演示。
+    private func makeProvider() -> AIProvider {
+        if let config = settings.makeProviderConfig() {
+            return AIProviderFactory.make(config: config)
+        }
+        return EchoProvider()
+    }
+
+    private func regenerateLast() {
+        viewModel.regenerate(
+            context: modelContext,
+            conversation: conversation,
+            provider: makeProvider()
+        )
     }
 
     private func retryFailed(_ failed: Message) {

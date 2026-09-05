@@ -2,7 +2,7 @@ import Foundation
 import Observation
 import SwiftData
 
-/// 对话页状态机：发送、流式接收、停止、删除失败消息。核心类。
+/// 对话页状态机：发送、流式接收、停止、重新生成、删除失败消息。核心类。
 @Observable
 @MainActor
 final class ChatViewModel {
@@ -24,7 +24,8 @@ final class ChatViewModel {
         generationTask?.cancel()
     }
 
-    func send(context: ModelContext, conversation: Conversation) {
+    /// 发送：用户消息 + assistant 占位入库，随后用传入的 Provider 流式填充。
+    func send(context: ModelContext, conversation: Conversation, provider: AIProvider) {
         guard canSend else { return }
         let text = inputText
         inputText = ""
@@ -43,16 +44,48 @@ final class ChatViewModel {
         try? context.save()
 
         isGenerating = true
-        generationTask = Task {
+        generationTask = streamTask(provider: provider, conversation: conversation, assistant: assistant)
+    }
+
+    /// 重新生成：删除最后一条 assistant 消息，重新流式填充。
+    func regenerate(context: ModelContext, conversation: Conversation, provider: AIProvider) {
+        guard !isGenerating else { return }
+        let sorted = conversation.messages.sorted { $0.createdAt < $1.createdAt }
+        guard let lastAssistant = sorted.last, lastAssistant.role == .assistant else { return }
+        context.delete(lastAssistant)
+
+        let assistant = Message(role: .assistant, content: "", status: .streaming)
+        assistant.conversation = conversation
+        context.insert(assistant)
+        try? context.save()
+
+        isGenerating = true
+        generationTask = streamTask(provider: provider, conversation: conversation, assistant: assistant)
+    }
+
+    func deleteFailed(_ message: Message, context: ModelContext) {
+        guard message.status == .failed else { return }
+        context.delete(message)
+        try? context.save()
+    }
+
+    /// 流式任务：消费 Provider 事件流，把增量写入 assistant 消息，结束时落定状态。
+    private func streamTask(provider: AIProvider, conversation: Conversation, assistant: Message) -> Task<Void, Never> {
+        Task {
             do {
-                let request = ChatRequest.make(
-                    model: conversation.modelID,
-                    history: conversation.messages.sorted { $0.createdAt < $1.createdAt }
-                )
-                let provider = EchoProvider()
+                let history = conversation.messages
+                    .sorted { $0.createdAt < $1.createdAt }
+                    .filter { !($0.content.isEmpty && $0.status == .streaming) }
+                let request = ChatRequest.make(model: conversation.modelID, history: history)
                 for try await event in provider.stream(request) {
-                    if case .delta(let delta) = event {
+                    switch event {
+                    case .delta(let delta):
                         assistant.content += delta
+                    case .usage(let usage):
+                        assistant.promptTokens = usage.prompt
+                        assistant.completionTokens = usage.completion
+                    case .finished:
+                        break
                     }
                 }
             } catch {
@@ -66,11 +99,5 @@ final class ChatViewModel {
             }
             self.isGenerating = false
         }
-    }
-
-    func deleteFailed(_ message: Message, context: ModelContext) {
-        guard message.status == .failed else { return }
-        context.delete(message)
-        try? context.save()
     }
 }

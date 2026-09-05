@@ -5,6 +5,7 @@ import UIKit
 struct MessageView: View {
     let message: Message
     var onRetry: (() -> Void)? = nil
+    var onRegenerate: (() -> Void)? = nil
 
     var body: some View {
         Group {
@@ -37,6 +38,13 @@ struct MessageView: View {
             }
         }
         .contextMenu {
+            if message.role == .assistant, let onRegenerate {
+                Button {
+                    onRegenerate()
+                } label: {
+                    Label("重新生成", systemImage: "arrow.counterclockwise")
+                }
+            }
             Button {
                 UIPasteboard.general.string = message.content
             } label: {

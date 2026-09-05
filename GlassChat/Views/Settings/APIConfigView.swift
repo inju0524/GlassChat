@@ -6,6 +6,9 @@ struct APIConfigView: View {
 
     @State private var apiKeyInput = ""
     @State private var savedHint = false
+    @State private var isTesting = false
+    @State private var testResult: String?
+    @State private var testOK = false
 
     private var hasConfiguredKey: Bool {
         guard let key = KeychainService.loadKey(for: store.providerID) else { return false }
@@ -53,13 +56,65 @@ struct APIConfigView: View {
             }
 
             Section("连接测试") {
-                Button("运行一次对话验证") { }
-                    .disabled(true)
-                Text("Phase 4 接入真实 API 后可用")
-                    .font(.themeSecondary())
-                    .foregroundStyle(AppTheme.textSecondary)
+                Button {
+                    runConnectionTest()
+                } label: {
+                    if isTesting {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                            Text("测试中…")
+                        }
+                    } else {
+                        Text("运行一次对话验证")
+                    }
+                }
+                .disabled(isTesting)
+                if let testResult {
+                    Text(testOK ? "✓ 连接成功" : testResult)
+                        .font(.themeSecondary())
+                        .foregroundStyle(testOK ? AppTheme.success : AppTheme.dangerText)
+                }
             }
         }
         .navigationTitle("API 配置")
+    }
+
+    /// 连接测试：用当前配置发一条最小对话请求，收到首个增量即判定成功。
+    private func runConnectionTest() {
+        guard let url = URL(string: store.endpoint), url.scheme != nil else {
+            testOK = false
+            testResult = "Endpoint 无效"
+            return
+        }
+        guard let key = KeychainService.loadKey(for: store.providerID), !key.isEmpty else {
+            testOK = false
+            testResult = "请先在上方保存 API Key"
+            return
+        }
+        let config = ProviderConfig(presetID: store.providerID, endpoint: url, apiKey: key, model: store.model)
+        let request = ChatRequest(
+            model: config.model,
+            messages: [.init(role: .user, content: "ping")]
+        )
+        isTesting = true
+        testResult = nil
+        Task {
+            defer { isTesting = false }
+            do {
+                let provider = AIProviderFactory.make(config: config)
+                for try await event in provider.stream(request) {
+                    if case .delta = event {
+                        testOK = true
+                        testResult = nil
+                        return
+                    }
+                }
+                testOK = false
+                testResult = "连接成功但未收到内容"
+            } catch {
+                testOK = false
+                testResult = ChatErrorMapper.map(error).errorDescription
+            }
+        }
     }
 }

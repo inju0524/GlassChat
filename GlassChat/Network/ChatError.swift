@@ -10,11 +10,15 @@ enum ChatError: Error, Sendable {
     case decoding           // 响应解析失败
     case cancelled          // 用户停止生成
     case notImplemented     // 骨架占位（Phase 4/5 实现）
+    /// API 返回的业务错误（SSE 流内 error 事件或响应体中的 message 原文）
+    case api(String)
+    /// 未配置 API Key 就发起请求
+    case notConfigured
 
     var isRetryable: Bool {
         switch self {
         case .offline, .timeout, .server, .rateLimited: return true
-        case .unauthorized, .decoding, .cancelled, .notImplemented: return false
+        case .unauthorized, .decoding, .cancelled, .notImplemented, .api, .notConfigured: return false
         }
     }
 }
@@ -30,6 +34,8 @@ extension ChatError: LocalizedError {
         case .decoding:       return "响应格式异常，请重试"
         case .cancelled:      return "已停止生成"
         case .notImplemented: return "该功能尚未实现"
+        case .api(let msg):   return msg
+        case .notConfigured:  return "未配置 API Key，请到「设置 → API 服务」添加"
         }
     }
 }
