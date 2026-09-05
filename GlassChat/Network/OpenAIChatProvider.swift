@@ -58,7 +58,7 @@ struct OpenAIChatProvider: AIProvider {
     private static func error(from bytes: URLSession.AsyncBytes, status: Int) async throws -> Error {
         var body = ""
         var iterator = bytes.lines.makeAsyncIterator()
-        while case let line? = await iterator.next() {
+        while case let line? = try await iterator.next() {
             body += line
             if body.count > 8_000 { break }
         }
