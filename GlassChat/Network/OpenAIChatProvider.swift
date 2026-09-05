@@ -31,7 +31,7 @@ struct OpenAIChatProvider: AIProvider {
                     let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
                     guard let http = response as? HTTPURLResponse else { throw ChatError.decoding }
                     guard (200..<300).contains(http.statusCode) else {
-                        throw Self.error(from: bytes, status: http.statusCode)
+                        throw try await Self.error(from: bytes, status: http.statusCode)
                     }
 
                     var decoder = SSEDecoder()
@@ -55,7 +55,7 @@ struct OpenAIChatProvider: AIProvider {
     }
 
     /// 非 2xx：优先解析响应体中服务商给出的可读错误（如 "Model ... does not exist"）
-    private static func error(from bytes: URLSession.AsyncBytes, status: Int) -> Error {
+    private static func error(from bytes: URLSession.AsyncBytes, status: Int) async throws -> Error {
         var body = ""
         var iterator = bytes.lines.makeAsyncIterator()
         while case let line? = await iterator.next() {

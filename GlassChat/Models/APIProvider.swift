@@ -1,5 +1,9 @@
 import Foundation
 
+extension APIProtocolKind: Identifiable {
+    var id: String { rawValue }
+}
+
 /// API 协议类型：决定 URL 路径、认证方式、请求体与解析方式。
 /// Provider（服务档案）与协议分离——多个 Provider 可共用同一协议。
 enum APIProtocolKind: String, Codable, CaseIterable {

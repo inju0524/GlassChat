@@ -58,17 +58,17 @@ struct ProviderEditView: View {
     private func form(_ provider: APIProvider) -> some View {
         Form {
             Section("基本信息") {
-                TextField("名称", text: bind(\.name))
+                TextField("名称", text: bind(\.name, default: ""))
                     .font(.themeBody())
                     .focused($focusedField, equals: .name)
                     .submitLabel(.done)
                     .onSubmit { focusedField = nil }
-                Picker("协议", selection: bind(\.protocolKind)) {
+                Picker("协议", selection: bind(\.protocolKind, default: .openAICompatible)) {
                     ForEach(APIProtocolKind.allCases.filter(\.isImplemented)) { kind in
                         Text(kind.displayName).tag(kind)
                     }
                 }
-                TextField("Base URL（如 https://api.xkiro.com/v1）", text: bind(\.baseURL))
+                TextField("Base URL（如 https://api.xkiro.com/v1）", text: bind(\.baseURL, default: ""))
                     .font(.themeBody())
                     .keyboardType(.URL)
                     .textInputAutocapitalization(.never)
@@ -185,7 +185,7 @@ struct ProviderEditView: View {
         }
         .onChange(of: focusedField) { oldField, newField in
             if oldField == .baseURL && newField != .baseURL {
-                if let current = provider?.baseURL {
+                if let current = provider.baseURL {
                     store.updateBaseURL(id: providerID, baseURL: current)
                 }
             }
@@ -195,10 +195,10 @@ struct ProviderEditView: View {
     // MARK: - 绑定与逻辑
 
     /// 经 ProviderStore 的字段绑定（单一数据源，修改即广播+持久化）
-    private func bind<T>(_ keyPath: WritableKeyPath<APIProvider, T>) -> Binding<T> {
+    private func bind<T>(_ keyPath: WritableKeyPath<APIProvider, T>, default defaultValue: T) -> Binding<T> {
         Binding(
-            get: { provider?[keyPath: keyPath] ?? (APIProvider(name: "")[keyPath: keyPath]) },
-            set: { store.update(id: providerID) { $0[keyPath: keyPath] = $1 } }
+            get: { store.provider(withID: providerID)?[keyPath: keyPath] ?? defaultValue },
+            set: { newValue in store.update(id: providerID) { $0[keyPath: keyPath] = newValue } }
         )
     }
 

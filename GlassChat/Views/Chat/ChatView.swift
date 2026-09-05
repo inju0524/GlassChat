@@ -87,16 +87,8 @@ struct ChatView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 14) {
                     ForEach(messages) { message in
-                        let isLastAssistant = message.id == messages.last?.id
-                            && message.role == .assistant && message.status == .finished
-                        MessageView(
-                            message: message,
-                            tokenSummary: tokenSummary(for: message),
-                            onRetry: message.status == .failed ? { retryFailed(message) } : nil,
-                            onRegenerate: isLastAssistant && !viewModel.isGenerating
-                                ? { regenerateLast() } : nil
-                        )
-                        .id(message.persistentModelID)
+                        messageRow(message)
+                            .id(message.persistentModelID)
                     }
                 }
                 .padding(.horizontal, 16)
@@ -113,6 +105,18 @@ struct ChatView: View {
         }
     }
 
+    /// 拆分表达式：避免 SwiftUI 大表达式触发编译器类型检查超时
+    private func messageRow(_ message: Message) -> some View {
+        let isLastAssistant = message.id == messages.last?.id
+            && message.role == .assistant && message.status == .finished
+        return MessageView(
+            message: message,
+            tokenSummary: tokenSummary(for: message),
+            onRetry: message.status == .failed ? { retryFailed(message) } : nil,
+            onRegenerate: isLastAssistant && !viewModel.isGenerating ? { regenerateLast() } : nil
+        )
+    }
+
     private func scrollToBottom(_ proxy: ScrollViewProxy) {
         guard let last = messages.last else { return }
         proxy.scrollTo(last.persistentModelID, anchor: .bottom)
@@ -127,7 +131,7 @@ struct ChatView: View {
                 }
             }
             HStack {
-                Text("● \(settings.model)")
+                Text("● \(providerStore.activeProvider?.defaultModel ?? "Echo 演示")")
                     .font(.themeCaption())
                     .foregroundStyle(AppTheme.textSecondary)
                     .glassEffect()
