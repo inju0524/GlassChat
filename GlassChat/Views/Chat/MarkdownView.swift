@@ -16,7 +16,7 @@ struct MarkdownView: View {
     private var attributed: AttributedString {
         (try? AttributedString(
             markdown: content,
-            options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+            options: .init(interpretedSyntax: .full)
         )) ?? AttributedString(content)
     }
 }

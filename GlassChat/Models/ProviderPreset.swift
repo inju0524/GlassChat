@@ -1,7 +1,6 @@
 import Foundation
 
 /// 内置服务商预设：设置页选择预设后自动填好 Endpoint 与默认模型。
-/// 全部走 OpenAI 兼容协议（Responses API 仅 OpenAI 官方提供）。
 struct ProviderPreset: Identifiable, Equatable {
     let id: String
     let displayName: String
@@ -21,5 +20,18 @@ struct ProviderPreset: Identifiable, Equatable {
 
     static func find(_ id: String) -> ProviderPreset {
         all.first { $0.id == id } ?? all[0]
+    }
+
+    /// 模型选择页的推荐列表
+    var suggestedModels: [String] {
+        switch id {
+        case "deepseek": return ["deepseek-chat", "deepseek-reasoner"]
+        case "openai": return ["gpt-4o-mini", "gpt-4o", "o4-mini"]
+        case "openai-responses": return ["gpt-4o-mini", "gpt-4o", "o4-mini"]
+        case "zhipu": return ["glm-4-flash", "glm-4-plus", "glm-4.5"]
+        case "moonshot": return ["moonshot-v1-8k", "moonshot-v1-32k"]
+        case "ollama": return ["qwen2.5:7b", "llama3.1:8b"]
+        default: return []
+        }
     }
 }

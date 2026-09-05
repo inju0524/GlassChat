@@ -19,22 +19,23 @@ final class SettingsStore {
         get { defaults.string(forKey: "model") ?? ProviderPreset.find(providerID).defaultModel }
         set { defaults.set(newValue, forKey: "model") }
     }
-    /// colorScheme: nil = 跟随系统
+    /// 主题原始值："system" / "light" / "dark"
+    var appearanceRaw: String {
+        get { defaults.string(forKey: "appearance") ?? "system" }
+        set { defaults.set(newValue, forKey: "appearance") }
+    }
+    /// nil = 跟随系统（由 appearanceRaw 映射）
     var preferredColorScheme: ColorScheme? {
-        get {
-            switch defaults.string(forKey: "appearance") {
-            case "light": return .light
-            case "dark": return .dark
-            default: return nil
-            }
+        switch appearanceRaw {
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil
         }
-        set {
-            switch newValue {
-            case .light: defaults.set("light", forKey: "appearance")
-            case .dark: defaults.set("dark", forKey: "appearance")
-            default: defaults.set("system", forKey: "appearance")
-            }
-        }
+    }
+    /// Liquid Glass 视觉开关（Phase 7 真机校准时消费）
+    var liquidGlassEnabled: Bool {
+        get { defaults.object(forKey: "liquidGlassEnabled") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "liquidGlassEnabled") }
     }
     var hasCompletedOnboarding: Bool {
         get { defaults.bool(forKey: "hasCompletedOnboarding") }

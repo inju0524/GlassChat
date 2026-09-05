@@ -1,19 +1,57 @@
 import SwiftUI
 
-/// 空状态/新建对话页：时间问候 + 中央玻璃面板 + 建议问题胶囊 + 输入栏。
-/// 视觉基准：预览稿 ④。TODO(Phase 2)：完整实现。
+/// 列表空状态/新建对话页：时间问候 + 中央玻璃面板 + 建议问题胶囊。
+/// 视觉基准：预览稿 ④。
 struct EmptyStateView: View {
+    var onStart: (String) -> Void = { _ in }
+
     @State private var greeting: String = ""
+
+    init(onStart: @escaping (String) -> Void = { _ in }) {
+        self.onStart = onStart
+    }
+
+    private static let suggestions = [
+        "帮我写一封请假邮件",
+        "用通俗语言解释 async/await",
+        "为京都之旅列一份清单",
+    ]
 
     var body: some View {
         VStack(spacing: 18) {
-            Text(greeting.isEmpty ? "你好" : greeting)
+            Text(greeting.isEmpty ? Self.greetingForNow() : greeting)
                 .font(.themeLargeTitle())
-            Text("想聊点什么？")
+                .foregroundStyle(AppTheme.textPrimary)
+            Text("想让 AI 帮你做什么？")
                 .font(.themeSecondary())
                 .foregroundStyle(AppTheme.textSecondary)
-            // TODO(Phase 2)：玻璃面板 + 建议胶囊（点击填入输入框）
+
+            VStack(spacing: 18) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 26, weight: .medium))
+                    .foregroundStyle(AppTheme.accent)
+                    .frame(width: 64, height: 64)
+                    .glassEffect(in: Circle())
+                Text("开始一段新的对话")
+                    .font(.themeTitle())
+                    .foregroundStyle(AppTheme.textPrimary)
+                Text("记录保存在本机，随时可以继续上次的话题")
+                    .font(.themeSecondary())
+                    .foregroundStyle(AppTheme.textSecondary)
+                    .multilineTextAlignment(.center)
+                VStack(spacing: 10) {
+                    ForEach(Self.suggestions, id: \.self) { suggestion in
+                        SuggestionChip(text: suggestion) {
+                            onStart(suggestion)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 28)
+            .padding(.vertical, 30)
+            .glassEffect(in: RoundedRectangle(cornerRadius: 26))
         }
+        .padding(.horizontal, 24)
         .onAppear { greeting = Self.greetingForNow() }
     }
 

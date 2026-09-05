@@ -10,14 +10,35 @@ struct EchoProvider: AIProvider {
             let task = Task {
                 let last = request.messages.last?.content ?? ""
                 let reply = """
-                （Echo 演示模式）你说的是：「\(last.prefix(50))」\
-                —— 接入真实 API Key 后，这里将是模型的流式回答。\
-                支持 **Markdown**、`行内代码` 与代码块。
+                （Echo 演示模式）收到你的消息：「\(last.prefix(50))」
+                —— 接入真实 API Key 后，这里将是模型的流式回答。
+
+                支持 **Markdown**、`行内代码` 与代码块：
+
+                ```swift
+                struct HelloView: View {
+                    var body: some View {
+                        Text("你好，Liquid Glass")
+                    }
+                }
+                ```
+
+                - 流式输出逐字返回
+                - 长按消息可复制
+
+                以上内容来自本地 Echo 演示模式。
                 """
                 for ch in reply {
-                    if Task.isCancelled { break }
+                    if Task.isCancelled {
+                        continuation.finish()
+                        return
+                    }
                     continuation.yield(.delta(String(ch)))
-                    try? await Task.sleep(for: .milliseconds(15))
+                    try? await Task.sleep(for: .milliseconds(12))
+                }
+                if Task.isCancelled {
+                    continuation.finish()
+                    return
                 }
                 continuation.yield(.usage(TokenUsage(prompt: last.count, completion: reply.count)))
                 continuation.yield(.finished(reason: "stop"))
